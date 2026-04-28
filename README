@@ -1,0 +1,25 @@
+# PROJECT 6
+
+**Name**: Marco Preciado
+**Date**: Tue Apr 28 03:25:41 PM CDT 2026
+**Environment**: Ubuntu on Windows, VSCode, Penguin Linux/GNU, VIM
+**Purpose**: Simulate resource management using paging
+
+
+## How to compile the project
+
+Reset project just in case:
+```bash
+make clean
+```
+
+The recompile project:
+```bash
+make
+```
+
+## Usage
+
+## Arguments
+
+## AI Usage
