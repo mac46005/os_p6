@@ -2,6 +2,7 @@
 #include "time.hpp"
 #include <string>
 #include <sys/shm.h>
+#include "../error/error.hpp"
 
 class Clock {
 private:
