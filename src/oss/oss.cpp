@@ -12,7 +12,7 @@ OSS::OSS::OSS(int argc, char **argv) {
                 } else {
 
                     output_ = new Output(options.logFile);
-                    
+
                     oss_clock_ = new OSSClock(
                         "./src/oss/oss.cpp",
                         options.childTimeLimit,
@@ -23,7 +23,7 @@ OSS::OSS::OSS(int argc, char **argv) {
 
                     msg_manager_ = new MsgManager("msgq.txt", 0644 | IPC_CREAT, pid_);
 
-                    
+                    scheduler_ = new Scheduler(options.maxProc, options.maxSimul, this->output_, this->oss_clock_, this->msg_manager_);
                 }
             }
         );

@@ -50,10 +50,10 @@ namespace OSS {
             MsgManager *msg_manager_;
             // resource manager
 
-            bool is_running_linear_process = false;
+            bool is_running_linear_process_ = false;
             pid_t linear_process_pid_ = -1;
 
-            const PCBInfo pcb_info_{};
+            PCBInfo pcb_info_{};
             PCBQueue *pcb_ready_queue_;
             std::vector<PCB> pcb_blocked_list;
             std::vector<PCB> completed_processes;
@@ -64,6 +64,13 @@ namespace OSS {
             void terminateProcess();
 
         public:
+            explicit Scheduler(
+                int max_proc,
+                int max_simul,
+                Output *output,
+                OSSClock *oss_clock,
+                MsgManager *msg_manager
+            );
             bool stillHaveChildrenToLaunch();
             bool stillHaveChildrenInSystem();
             void launchChildrenIfAble();

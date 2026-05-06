@@ -29,12 +29,15 @@ namespace OSS {
             const std::string logLevelToString(LogLevel log_level) const;
             const Color::ColorBuilder debugConsoleTemplate(const LogLevel log_level, const Color::Colors border_color, const std::string topic, const std::string message) const;
             const std::string debugLogTemplate(const LogLevel log_level, const std::string topic, const std::string message) const;
+            void writeToOperationLog(const std::string &line);
         public:
             explicit Output(std::string operation_log_file_name_);
 
             void logDebugINFO(const std::string topic, const std::string message);
             void logDebugWARNING( const std::string topic, const std::string message);
             void logDebugERROR( const std::string topic, const std::string message);
+
+            void logProcessLaunch(pid_t pid, OSSClock *clock);
 
             void cleanUp();
 

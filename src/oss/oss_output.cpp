@@ -104,6 +104,29 @@ void OSS::Output::logDebugERROR(const std::string topic, const std::string messa
     debug_log_stream_ << sb << std::endl;
 }
 
+
+
+
+
+void OSS::Output::writeToOperationLog(const std::string &line) {
+    std::cout << line << std::endl;
+    if (operation_log_stream_.is_open() && operation_log_line_cout_ < MAX_OPERATION_LOG_LINES) {
+        operation_log_stream_ << line << std::endl;
+        operation_log_line_cout_++;
+    }
+}
+
+
+
+
+
+
+void OSS::Output::logProcessLaunch(pid_t pid, OSSClock *clock) {
+    writeToOperationLog("OSS launched process pid " + std::to_string(pid) + " at time " + clock->toString());
+}
+
+
+
 void OSS::Output::cleanUp() {
     debug_log_stream_.close();
     operation_log_stream_.close();
