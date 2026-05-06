@@ -16,3 +16,7 @@ void OSS::OSSClock::updateClockByQuantum() {
     Time *global_time = clock_->getCurrentTime();
     Clock::addTimeToPtrTime(global_time, quantum_time_);
 }
+
+Time *OSS::OSSClock::getCurrentTime() const {
+    return clock_->getCurrentTime();
+}

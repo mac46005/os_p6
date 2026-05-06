@@ -19,6 +19,8 @@ public:
     explicit Clock(std::string parent, std::string key);
     void initializeClock();
     Time *getCurrentTime();
+    static bool gteq(Time a, Time b);
+    static bool lteq(Time a, Time b);
     static Time addTime(Time a, Time b);
     static Time subtractTime(Time a, Time b);
     static void roundTime(Time &time);

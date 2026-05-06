@@ -38,6 +38,12 @@ void Clock::roundTime(Time &time) {
         }
     }
 }
+bool Clock::gteq(Time a, Time b) {
+    return (a.sec > b.sec) || (a.sec == b.sec && a.nano >= b.nano);
+}
+bool Clock::lteq(Time a, Time b) {
+    return (b.sec > a.sec) || (b.sec == a.sec && b.nano >= a.nano);
+}
 
 Time Clock::addTime(Time a, Time b) {
     Time newTime = Time();

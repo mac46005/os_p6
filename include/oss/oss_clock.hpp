@@ -22,6 +22,7 @@ namespace OSS {
             );
 
             void updateClockByQuantum();
+            Time *getCurrentTime() const;
 
     };
 }
