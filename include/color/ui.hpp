@@ -6,6 +6,10 @@
 
 
 namespace Color {
+
+    inline static const std::string border() {
+        return "########################################################";
+    }
     inline void label(ColorBuilder &cb, std::string label) {
         cb.appendForeground(Colors::YELLOW, label + ": ");
     };

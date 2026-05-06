@@ -20,3 +20,7 @@ void OSS::OSSClock::updateClockByQuantum() {
 Time *OSS::OSSClock::getCurrentTime() const {
     return clock_->getCurrentTime();
 }
+
+const std::string OSS::OSSClock::toString() const {
+    return clock_->toString();
+}
