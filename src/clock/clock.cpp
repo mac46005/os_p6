@@ -27,6 +27,33 @@ Time *Clock::getCurrentTime() {
     return current_time_;
 }
 
+void Clock::roundTime(Time &time) {
+    if (time.nano >= Clock::SECOND_TO_NANO) {
+        time.sec++;
+        time.nano -= Clock::SECOND_TO_NANO;
+    } else if (time.nano < 0) {
+        if (time.nano < (-Clock::SECOND_TO_NANO)) {
+            time.nano += Clock::SECOND_TO_NANO;
+            time.sec--;
+        }
+    }
+}
+
+Time Clock::addTime(Time a, Time b) {
+    Time newTime = Time();
+    newTime.sec = a.sec + b.sec;
+    newTime.nano = a.nano + b.nano;
+    roundTime(newTime);
+    return newTime;
+}
+Time Clock::subtractTime(Time a, Time b) {
+    Time newTime = Time();
+    newTime.sec = a.sec - b.sec;
+    newTime.nano = a.nano - b.nano;
+    roundTime(newTime);
+    return newTime;
+}
+
 void Clock::addTimeToPtrTime(Time *ptr_time, Time add_time) {
     ptr_time->sec = ptr_time->sec + add_time.sec;
     ptr_time->nano = ptr_time->nano + add_time.nano;

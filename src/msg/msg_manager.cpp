@@ -23,7 +23,7 @@ void MsgManager::sendMessage(long mtype, pid_t sender_pid, ProcessStatus status,
     }
 }
 
-void MsgManager::recieveMessage(std::function<void(MsgBuffer)> message, int message_flag) {
+void MsgManager::receiveMessage(std::function<void(MsgBuffer)> message, int message_flag) {
     MsgBuffer buf;
 
     if ((msgrcv(msqid_, &buf, sizeof(MsgBuffer) - sizeof(long), pid_, message_flag)) == -1) {

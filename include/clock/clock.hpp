@@ -19,6 +19,9 @@ public:
     explicit Clock(std::string parent, std::string key);
     void initializeClock();
     Time *getCurrentTime();
+    static Time addTime(Time a, Time b);
+    static Time subtractTime(Time a, Time b);
+    static void roundTime(Time &time);
     static void addTimeToPtrTime(Time *ptr_time, Time add_time);
     static void subtractTimeToPtrTime(Time *ptr_tim, Time subtract_time);
     static Time floatToTime(float time_f);

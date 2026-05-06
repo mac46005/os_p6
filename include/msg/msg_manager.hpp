@@ -17,6 +17,6 @@ class MsgManager {
         explicit MsgManager(const char *key, int permission, pid_t pid);
         // POSSIBLE CHANGE
         void sendMessage(long mtype, pid_t sender_pid, ProcessStatus status, int resource, int message_flag);
-        void recieveMessage(std::function<void(MsgBuffer)> message, int message_flag);
+        void receiveMessage(std::function<void(MsgBuffer)> message, int message_flag);
         void cleanUp();
 };
