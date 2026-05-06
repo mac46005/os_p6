@@ -19,7 +19,7 @@ namespace OSS {
     class ArgumentProcessor{
         private:
             const char *opstr_ = "hn:s:t:i:f:";
-            int argc;
+            int argc_;
             char **argv_;
         public:
             explicit ArgumentProcessor(int argc, char **argv);
