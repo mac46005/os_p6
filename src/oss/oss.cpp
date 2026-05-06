@@ -11,7 +11,8 @@ OSS::OSS::OSS(int argc, char **argv) {
                     needs_help_ = true;
                 } else {
 
-
+                    output_ = new Output(options.logFile);
+                    
                     oss_clock_ = new OSSClock(
                         "./src/oss/oss.cpp",
                         options.childTimeLimit,
@@ -21,6 +22,8 @@ OSS::OSS::OSS(int argc, char **argv) {
                     );
 
                     msg_manager_ = new MsgManager("msgq.txt", 0644 | IPC_CREAT, pid_);
+
+                    
                 }
             }
         );
