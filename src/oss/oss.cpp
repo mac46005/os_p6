@@ -10,6 +10,8 @@ OSS::OSS::OSS(int argc, char **argv) {
                 if (options.needsHelp == true) {
                     needs_help_ = true;
                 } else {
+
+
                     oss_clock_ = new OSSClock(
                         "./src/oss/oss.cpp",
                         options.childTimeLimit,
@@ -23,10 +25,18 @@ OSS::OSS::OSS(int argc, char **argv) {
             }
         );
     } catch (const ArgumentError &e) {
-        
+        output_->logDebugERROR("ArgumentProcessor", e.what());
     } catch (Error &e) {
-        
+        output_->logDebugERROR(e.getSubject(), e.getErrMessage());
     } catch (std::exception &e) {
-        
+        output_->logDebugERROR("std::exception", e.what());
     }
+
+    cleanUp();
+}
+
+void OSS::OSS::cleanUp() {
+    output_->cleanUp();
+    oss_clock_->cleanUp();
+    delete output_;
 }

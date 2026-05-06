@@ -2,6 +2,7 @@
 #include "argument_processor.hpp"
 #include "oss_clock.hpp"
 #include "../msg/msg_manager.hpp"
+#include "oss_output.hpp"
 
 namespace OSS {
     class OSS {
@@ -9,6 +10,7 @@ namespace OSS {
             pid_t pid_ = 0;
             bool needs_help_ = false;
             ArgumentProcessor *argument_processor_;
+            Output *output_;
             OSSClock *oss_clock_;
             MsgManager *msg_manager_;
 

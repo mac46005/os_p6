@@ -19,13 +19,13 @@ namespace OSS {
         message_(message), 
         std::invalid_argument(message) {}
         
-        inline std::string getOption() {
+        inline const std::string getOption() const {
             return option_;
         }
-        inline std::string getArg() {
+        inline const std::string getArg() const {
             return arg_;
         }
-        inline std::string getMessage() {
+        inline const std::string getMessage() const {
             return message_;
         }
     };

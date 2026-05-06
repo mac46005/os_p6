@@ -24,6 +24,7 @@ namespace OSS {
             void updateClockByQuantum();
             Time *getCurrentTime() const;
             const std::string toString() const;
+            void cleanUp();
 
     };
 }

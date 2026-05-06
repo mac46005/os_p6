@@ -24,3 +24,8 @@ Time *OSS::OSSClock::getCurrentTime() const {
 const std::string OSS::OSSClock::toString() const {
     return clock_->toString();
 }
+
+void OSS::OSSClock::cleanUp() {
+    clock_->detach();
+    clock_->rmid();
+}
