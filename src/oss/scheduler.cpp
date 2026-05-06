@@ -81,3 +81,6 @@ void OSS::Scheduler::launchChildrenIfAble() {
     }
 }
 
+void OSS::Scheduler::cleanUp() {
+    oss_clock_->cleanUp();
+}
