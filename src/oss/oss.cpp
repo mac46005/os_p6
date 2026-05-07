@@ -38,8 +38,37 @@ OSS::OSS::OSS(int argc, char **argv) {
     cleanUp();
 }
 
+int OSS::OSS::run() {
+    if (needs_help_) {
+        output_->printHelpMessage();
+    } else {
+        try {
+            while(
+                (scheduler_->stillHaveChildrenToLaunch() || scheduler_->stillHaveChildrenInSystem())
+            ) {
+                scheduler_->launchChildrenIfAble();
+                oss_clock_->updateClockByQuantum();
+                scheduler_->updateProcessInReadyQueue();
+            }
+        } catch (Error &e) {
+            output_->logDebugERROR(e.getSubject(), e.getErrMessage());
+            return EXIT_FAILURE;
+        } catch (std::exception &e) {
+            output_->logDebugERROR("OSS::run()", e.what());
+            return EXIT_FAILURE;
+        }
+    }
+
+    cleanUp();
+    output_->logDebugINFO("OSS", "TERMINATING...");
+    return EXIT_SUCCESS;
+}
+
 void OSS::OSS::cleanUp() {
     output_->cleanUp();
     oss_clock_->cleanUp();
+    msg_manager_->cleanUp();
     delete output_;
+    delete oss_clock_;
+    delete msg_manager_;
 }

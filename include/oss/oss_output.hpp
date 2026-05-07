@@ -7,39 +7,52 @@
 #include "../color/ui.hpp"
 #include "oss_clock.hpp"
 
+namespace OSS
+{
+    class Output
+    {
+    private:
+        enum LogLevel
+        {
+            INFO,
+            WARNING,
+            ERROR
+        };
+        std::string operation_log_file_name_;
+        const std::string debug_log_file_name_ = "debug_log.log";
+        std::ofstream operation_log_stream_;
+        std::ofstream debug_log_stream_;
 
+        int operation_log_line_cout_ = 0;
+        const int MAX_OPERATION_LOG_LINES = 10000;
+        const std::string currentTimeToString(const OSSClock *oss_clock) const;
+        const std::string repeatStr(const int n, const std::string content) const;
+        const std::string logLevelToString(LogLevel log_level) const;
+        const Color::ColorBuilder debugConsoleTemplate(const LogLevel log_level, const Color::Colors border_color, const std::string topic, const std::string message) const;
+        const std::string debugLogTemplate(const LogLevel log_level, const std::string topic, const std::string message) const;
+        void writeToOperationLog(const std::string &line);
 
-namespace OSS {
-    class Output {
-        private:
-            enum LogLevel {
-                INFO,
-                WARNING,
-                ERROR
-            };
-            std::string operation_log_file_name_;
-            const std::string debug_log_file_name_ = "debug_log.log";
-            std::ofstream operation_log_stream_;
-            std::ofstream debug_log_stream_;
-            
-            int operation_log_line_cout_ = 0;
-            const int MAX_OPERATION_LOG_LINES = 10000;
-            const std::string currentTimeToString(const OSSClock *oss_clock) const;
-            const std::string repeatStr(const int n, const std::string content) const;
-            const std::string logLevelToString(LogLevel log_level) const;
-            const Color::ColorBuilder debugConsoleTemplate(const LogLevel log_level, const Color::Colors border_color, const std::string topic, const std::string message) const;
-            const std::string debugLogTemplate(const LogLevel log_level, const std::string topic, const std::string message) const;
-            void writeToOperationLog(const std::string &line);
-        public:
-            explicit Output(std::string operation_log_file_name_);
+        void appendOption(
+            Color::ColorBuilder &cb,
+            std::string option,
+            std::string arg
+        );
+        void appendOptionInfo(
+            Color::ColorBuilder &cb, 
+            std::string option, 
+            std::string arg, 
+            std::string description
+        );
+    public:
+        void printHelpMessage();
+        explicit Output(std::string operation_log_file_name_);
 
-            void logDebugINFO(const std::string topic, const std::string message);
-            void logDebugWARNING( const std::string topic, const std::string message);
-            void logDebugERROR( const std::string topic, const std::string message);
+        void logDebugINFO(const std::string topic, const std::string message);
+        void logDebugWARNING(const std::string topic, const std::string message);
+        void logDebugERROR(const std::string topic, const std::string message);
 
-            void logProcessLaunch(pid_t pid, OSSClock *clock);
+        void logProcessLaunch(pid_t pid, OSSClock *clock);
 
-            void cleanUp();
-
+        void cleanUp();
     };
 }

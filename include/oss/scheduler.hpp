@@ -62,7 +62,10 @@ namespace OSS {
             PCB createPCB(pid_t pid);
             void forkProcess();
             void terminateProcess();
-
+            void handleOSSControl();
+            void handleTERMINATE(pid_t pid);
+            void requeueCurrentProcess();
+            void canUnblockBlockedProcesses();
         public:
             explicit Scheduler(
                 int max_proc,
@@ -74,7 +77,7 @@ namespace OSS {
             bool stillHaveChildrenToLaunch();
             bool stillHaveChildrenInSystem();
             void launchChildrenIfAble();
-            
+            void updateProcessInReadyQueue();
             void cleanUp();
     };
 

@@ -20,9 +20,74 @@ OSS::Output::Output(std::string operation_log_file_name): operation_log_file_nam
     debug_log_stream_.open(debug_log_file_name_, std::ios::out | std::ios::app);
 
 }
+
+void OSS::Output::appendOption(
+    Color::ColorBuilder &cb,
+    std::string option,
+    std::string arg)
+{
+    Color::optionalContainerStart(cb);
+    Color::space(cb);
+    Color::option(cb, option);
+    Color::space(cb);
+    Color::optionArgument(cb, arg);
+    Color::space(cb);
+    Color::optionalContainerEnd(cb);
+}
+void OSS::Output::appendOptionInfo(Color::ColorBuilder &cb, std::string option, std::string arg, std::string description)
+{
+    appendOption(cb, option, arg);
+    Color::newLine(cb);
+    Color::tab(cb);
+    Color::defaultOutput(cb, description);
+    Color::newLine(cb);
+}
+void OSS::Output::printHelpMessage()
+{
+    Color::ColorBuilder cb;
+
+    Color::title(cb, "Project 5: The Resource Manager");
+    Color::newLine(cb);
+    Color::label(cb, "USAGE");
+    Color::space(cb);
+    Color::title(cb, "oss");
+    Color::space(cb);
+    appendOption(cb, "n", "proc");
+    Color::space(cb);
+    appendOption(cb, "s", "simul");
+    Color::space(cb);
+    appendOption(cb, "t", "childTimeLimit");
+    Color::space(cb);
+    appendOption(cb, "i", "launchInterval");
+    Color::space(cb);
+    appendOption(cb, "f", "logfile");
+    Color::newLine(cb);
+
+    Color::label(cb, "PURPOSE");
+    Color::defaultOutput(
+        cb,
+        "This program simulates an operating system that launches several worker processes.\n"
+        "The simulated oss manages and schedules workers to work a certain time limit and also manage resources.\n"
+        "All workers can decide how to utilize \"working\" time and resources.");
+    Color::newLine(cb);
+
+    Color::label(cb, "ARGUMENTS");
+    Color::newLine(cb);
+    appendOptionInfo(cb, "n", "proc", "Max processes to launch");
+    appendOptionInfo(cb, "s", "simul", "Max simultaneous processes to launch");
+    appendOptionInfo(cb, "t", "childTimeLimit", "Total bound time limit for children to execute for");
+    appendOptionInfo(cb, "i", "launchInterval", "Total bound time launch interval");
+    appendOptionInfo(cb, "f", "logfile", "The name of the log file to output oss operations");
+
+    std::cout << cb.build();
+}
+
 const std::string OSS::Output::currentTimeToString(const OSSClock *oss_clock) const {
     return oss_clock->toString();
 }
+
+
+
 const std::string OSS::Output::repeatStr(const int n, const std::string content) const {
     std::string output = "";
     for (int i = 0; i < n; i++) {
@@ -30,6 +95,7 @@ const std::string OSS::Output::repeatStr(const int n, const std::string content)
     }
     return output;
 }
+
 
 const std::string OSS::Output::logLevelToString(LogLevel log_level) const {
     switch (log_level)
@@ -61,6 +127,8 @@ const Color::ColorBuilder OSS::Output::debugConsoleTemplate(const LogLevel log_l
     cb.appendForeground(Color::Colors::DEFAULT, message);
     return cb;
 }
+
+
 const std::string OSS::Output::debugLogTemplate(const LogLevel log_level,const std::string topic, const std::string message) const {
     std::string output = "";
     std::string space = " ";
@@ -72,6 +140,8 @@ const std::string OSS::Output::debugLogTemplate(const LogLevel log_level,const s
     output += tab + "message:" + space + message;
     output += new_line;
 }
+
+
 void OSS::Output::logDebugINFO(const std::string topic, const std::string message) {
     Color::ColorBuilder cb;
     std::string sb;
@@ -82,6 +152,8 @@ void OSS::Output::logDebugINFO(const std::string topic, const std::string messag
     std::cout << cb.build();
     debug_log_stream_ << sb << std::endl;
 }
+
+
 void OSS::Output::logDebugWARNING(const std::string topic, const std::string message) {
     Color::ColorBuilder cb;
     std::string sb;
@@ -92,6 +164,7 @@ void OSS::Output::logDebugWARNING(const std::string topic, const std::string mes
     std::cout << cb.build();
     debug_log_stream_ << sb << std::endl;
 }
+
 
 void OSS::Output::logDebugERROR(const std::string topic, const std::string message) {
     Color::ColorBuilder cb;
