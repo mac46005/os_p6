@@ -51,7 +51,7 @@ void OSS::Scheduler::forkProcess() {
             linear_process_pid_ = pid;
         }
 
-        output_->logDebugINFO("Scheduler::forkProcess()", std::string("OSS forking process pid: ") + std::string(std::to_string(pid)));
+        output_->logDebugCAUTION("Scheduler::forkProcess()", std::string("OSS forking process pid: ") + std::string(std::to_string(pid)));
         output_->logProcessLaunch(pid, oss_clock_);
     }
 }
@@ -68,11 +68,13 @@ void OSS::Scheduler::launchChildrenIfAble() {
         if (
             !pcb_info_.isSimulataneousCountReached()
         ) {
+            output_->logDebugCAUTION("Scheduler::launchChildrenIfAble()", "forking simul process");
             pcb_info_.simultaneous_count_++;
             forkProcess();
         } else if (
             !pcb_info_.isProcessCountReached() && !is_running_linear_process_
         ) {
+            output_->logDebugCAUTION("OSS::launchChildrenIfAble()", "forking proc process");
             is_running_linear_process_ = true;
             forkProcess();
         }
@@ -99,6 +101,9 @@ void OSS::Scheduler::requeueCurrentProcess() {
     if (current_process_running_.pid > 0) {
         pcb_ready_queue_->enqueue(current_process_running_);
         current_process_running_ = PCB{.pid = -1};
+        if (is_running_linear_process_) {
+            is_running_linear_process_ = false;
+        }
     }
 }
 void OSS::Scheduler::handleOSSControl() {
@@ -117,14 +122,14 @@ void OSS::Scheduler::handleTERMINATE(pid_t pid) {
         completed_processes.push_back(current_process_running_);
         current_process_running_ = PCB{.pid = -1};
         found = true;
-        output_->logDebugINFO("OSS::handleTERMINATE()", "PID " + std::string(std::to_string(pid)) + " Terminated");
+        output_->logDebugWARNING("OSS::handleTERMINATE()", "PID " + std::string(std::to_string(pid)) + " Terminated");
     } else {
         for (auto it = pcb_blocked_list.begin(); it != pcb_blocked_list.end(); ++it)
         {
             if (it->pid == pid)
             {
                 it->end_time = *current_time;
-                output_->logDebugINFO("OSS::handleTERMINATE()", "PID " + std::string(std::to_string(pid)) + " Terminated");
+                output_->logDebugWARNING("OSS::handleTERMINATE()", "PID " + std::string(std::to_string(pid)) + " Terminated");
                 completed_processes.push_back(*it);
                 pcb_blocked_list.erase(it);
 
@@ -145,7 +150,7 @@ void OSS::Scheduler::handleTERMINATE(pid_t pid) {
 
                 pcb.end_time = *current_time;
 
-                output_->logDebugINFO("OSS::handleTERMINATE()", "PID " + std::string(std::to_string(pid)) + " Terminated");
+                output_->logDebugWARNING("OSS::handleTERMINATE()", "PID " + std::string(std::to_string(pid)) + " Terminated");
 
                 completed_processes.push_back(pcb);
 
@@ -176,6 +181,13 @@ void OSS::Scheduler::handleTERMINATE(pid_t pid) {
     }
     
 }
+
+
+
+
+
+
+
 void OSS::Scheduler::updateProcessInReadyQueue() {
     if (current_process_running_.pid != -1) {
         return;
@@ -201,7 +213,8 @@ void OSS::Scheduler::updateProcessInReadyQueue() {
                     handleOSSControl();
                     break;
                 case ProcessStatus::TERMINATE:
-
+                    handleTERMINATE(msg.sender_pid);
+                    break;
             }
         },
         0

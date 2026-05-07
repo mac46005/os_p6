@@ -16,7 +16,7 @@ OSS::OSS::OSS(int argc, char **argv) {
                     oss_clock_ = new OSSClock(
                         "./src/oss/oss.cpp",
                         options.childTimeLimit,
-                        options.launchLimit,
+                        options.launchInterval,
                         0,
                         100
                     );
@@ -27,15 +27,40 @@ OSS::OSS::OSS(int argc, char **argv) {
                 }
             }
         );
-    } catch (const ArgumentError &e) {
-        output_->logDebugERROR("ArgumentProcessor", e.what());
-    } catch (Error &e) {
-        output_->logDebugERROR(e.getSubject(), e.getErrMessage());
-    } catch (std::exception &e) {
-        output_->logDebugERROR("std::exception", e.what());
     }
-
-    cleanUp();
+    catch (const ArgumentError &e)
+    {
+        if (output_)
+        {
+            output_->logDebugWARNING("ArgumentProcessor", e.what());
+        }
+        else
+        {
+            std::cerr << "ArgumentProcessor: " << e.what() << std::endl;
+        }
+    }
+    catch (Error &e)
+    {
+        if (output_)
+        {
+            output_->logDebugWARNING(e.getSubject(), e.what());
+        }
+        else
+        {
+            std::cerr << e.getSubject() << ": " << e.what() << std::endl;
+        }
+    }
+    catch (std::exception &e)
+    {
+        if (output_)
+        {
+            output_->logDebugWARNING("std::exception", e.what());
+        }
+        else
+        {
+            std::cerr << "std::exception: " << e.what() << std::endl;
+        }
+    }
 }
 
 int OSS::OSS::run() {
@@ -44,6 +69,7 @@ int OSS::OSS::run() {
     } else {
         try {
             while(
+                !g_timeout && !g_stop &&
                 (scheduler_->stillHaveChildrenToLaunch() || scheduler_->stillHaveChildrenInSystem())
             ) {
                 scheduler_->launchChildrenIfAble();
@@ -51,16 +77,16 @@ int OSS::OSS::run() {
                 scheduler_->updateProcessInReadyQueue();
             }
         } catch (Error &e) {
-            output_->logDebugERROR(e.getSubject(), e.getErrMessage());
+            output_->logDebugWARNING(e.getSubject(), e.getErrMessage());
             return EXIT_FAILURE;
         } catch (std::exception &e) {
-            output_->logDebugERROR("OSS::run()", e.what());
+            output_->logDebugWARNING("OSS::run()", e.what());
             return EXIT_FAILURE;
         }
     }
-
-    cleanUp();
     output_->logDebugINFO("OSS", "TERMINATING...");
+    cleanUp();
+    
     return EXIT_SUCCESS;
 }
 

@@ -51,7 +51,7 @@ namespace Color {
     }
 
     inline void appendWarningMark(ColorBuilder &cb) {
-        std::string warning_line = "WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING";
+        std::string warning_line = "CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION";
         cb.appendForeground(Colors::YELLOW, warning_line);
         Color::newLine(cb);
         cb.appendForeground(Colors::YELLOW, warning_line);
@@ -61,7 +61,7 @@ namespace Color {
     }
 
     inline void appendErrorMark(ColorBuilder &cb) {
-        std::string error_line = "ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR";
+        std::string error_line = "WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING";
         cb.appendForeground(Colors::RED, error_line);
         newLine(cb);
         cb.appendForeground(Colors::RED, error_line);
@@ -81,7 +81,7 @@ namespace Color {
 
     inline void printError(std::string subject, std::string message, std::string err) {
         ColorBuilder cb;
-        cb.appendForeground(Colors::RED, "ERROR ERROR ERROR ERROR ERROR ERROR");
+        cb.appendForeground(Colors::RED, "WARNING WARNING WARNING WARNING WARNING WARNING");
         newLine(cb);
         cb.appendForeground(Colors::YELLOW, "From: ");
         cb.appendForeground(Colors::CYAN, subject);
@@ -92,7 +92,7 @@ namespace Color {
         newLine(cb);
         cb.appendForeground(Colors::RED, err);
         newLine(cb);
-        cb.appendForeground(Colors::RED, "ERROR ERROR ERROR ERROR ERROR ERROR");
+        cb.appendForeground(Colors::RED, "WARNING WARNING WARNING WARNING WARNING WARNING");
         newLine(cb);
         std::cout << cb.build();
     }

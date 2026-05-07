@@ -2,14 +2,14 @@
 
 
 OSS::Output::Output(std::string operation_log_file_name): operation_log_file_name_(operation_log_file_name) {
-    int fd = open(operation_log_file_name.c_str(), O_CREAT | O_WRONLY | O_TRUNC | 0644);
+    int fd = open(operation_log_file_name.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644);
     if (fd == -1) {
         throw std::runtime_error("OSS::Output::Output() failed to open file: " + operation_log_file_name);
     }
 
     close(fd);
 
-    fd = open(debug_log_file_name_.c_str(), O_CREAT | O_WRONLY | O_TRUNC | 0644);
+    fd = open(debug_log_file_name_.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644);
     if (fd == -1) {
         throw std::runtime_error("OSS::Output::Output() failed to open file: " + debug_log_file_name_);
     }
@@ -102,10 +102,10 @@ const std::string OSS::Output::logLevelToString(LogLevel log_level) const {
     {
     case LogLevel::INFO:
         return "INFO";
+    case LogLevel::CAUTION:
+        return "CAUTION";
     case LogLevel::WARNING:
         return "WARNING";
-    case LogLevel::ERROR:
-        return "ERROR";
     }
 }
 
@@ -125,6 +125,13 @@ const Color::ColorBuilder OSS::Output::debugConsoleTemplate(const LogLevel log_l
     Color::label(cb, "message");
     Color::newLine(cb);
     cb.appendForeground(Color::Colors::DEFAULT, message);
+    Color::newLine(cb);
+    cb.appendForeground(border_color, repeatStr(8, std::string(logLevelToString(log_level))));
+    Color::newLine(cb);
+    cb.appendForeground(border_color, Color::border());
+    Color::newLine(cb);
+    cb.appendForeground(border_color, Color::border());
+    Color::newLine(cb);
     return cb;
 }
 
@@ -138,7 +145,7 @@ const std::string OSS::Output::debugLogTemplate(const LogLevel log_level,const s
     output += logLevelToString(log_level);
     output += tab + "topic: " + topic;
     output += tab + "message:" + space + message;
-    output += new_line;
+    return output;
 }
 
 
@@ -154,10 +161,10 @@ void OSS::Output::logDebugINFO(const std::string topic, const std::string messag
 }
 
 
-void OSS::Output::logDebugWARNING(const std::string topic, const std::string message) {
+void OSS::Output::logDebugCAUTION(const std::string topic, const std::string message) {
     Color::ColorBuilder cb;
     std::string sb;
-    LogLevel lvl = LogLevel::WARNING;
+    LogLevel lvl = LogLevel::CAUTION;
     cb = debugConsoleTemplate(lvl, Color::Colors::YELLOW, topic, message);
     sb = debugLogTemplate(lvl, topic, message);
 
@@ -166,10 +173,10 @@ void OSS::Output::logDebugWARNING(const std::string topic, const std::string mes
 }
 
 
-void OSS::Output::logDebugERROR(const std::string topic, const std::string message) {
+void OSS::Output::logDebugWARNING(const std::string topic, const std::string message) {
     Color::ColorBuilder cb;
     std::string sb;
-    LogLevel lvl = LogLevel::ERROR;
+    LogLevel lvl = LogLevel::WARNING;
     cb = debugConsoleTemplate(lvl, Color::Colors::RED, topic, message);
     sb = debugLogTemplate(lvl, topic, message);
 

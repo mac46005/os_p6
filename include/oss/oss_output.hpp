@@ -15,11 +15,11 @@ namespace OSS
         enum LogLevel
         {
             INFO,
-            WARNING,
-            ERROR
+            CAUTION,
+            WARNING
         };
         std::string operation_log_file_name_;
-        const std::string debug_log_file_name_ = "debug_log.log";
+        const std::string debug_log_file_name_ = "debug_log.txt";
         std::ofstream operation_log_stream_;
         std::ofstream debug_log_stream_;
 
@@ -48,8 +48,8 @@ namespace OSS
         explicit Output(std::string operation_log_file_name_);
 
         void logDebugINFO(const std::string topic, const std::string message);
+        void logDebugCAUTION(const std::string topic, const std::string message);
         void logDebugWARNING(const std::string topic, const std::string message);
-        void logDebugERROR(const std::string topic, const std::string message);
 
         void logProcessLaunch(pid_t pid, OSSClock *clock);
 

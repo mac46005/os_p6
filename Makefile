@@ -37,7 +37,7 @@ $(TARGET2):	$(TARGET2_OBJ) $(COMMON_OBJS)
 $(BUILD_DIR)/$(TARGET1)/%.o:	$(SRC_DIR)/$(TARGET1)/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
-$(BUILD_DIR)/$(TARGET2)/%.o:	$(SRC_DIR/$(TARGET2)/%.cpp
+$(BUILD_DIR)/$(TARGET2)/%.o:	$(SRC_DIR)/$(TARGET2)/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
 $(BUILD_DIR)/$(MSG)/%.o:	$(SRC_DIR)/$(MSG)/%.cpp
@@ -50,13 +50,13 @@ $(BUILD_DIR)/$(ERROR)/%.o:	$(SRC_DIR)/$(ERROR)/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
 $(BUILD_DIR)/$(CLOCK)/%.o:	$(SRC_DIR)/$(CLOCK)/%.cpp
-	$mkdir -p $(dir $@)
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
 
 .PHONY: clean
 
 clean:
-	/bin/rm $(BUILD_DIR) $(TARGET1) $(TARGET)
+	/bin/rm -rf $(BUILD_DIR) $(TARGET1) $(TARGET)
 
 
 

@@ -1,4 +1,5 @@
 #include "../../include/user_proc/user_proc.hpp";
+#include <iostream>
 
 UserProcess::UserProcess::UserProcess(int argc, char **argv) {
     pid_ = getpid();
@@ -17,14 +18,20 @@ int UserProcess::UserProcess::run() {
             },
             0
         );
+        std::cout << "UserProcess " + std::to_string(pid_) + " recieved message\n";
 
 
         if (user_clock_manager_->isTimeUp()) {
+            std::cout << "UserProcess " + std::to_string(pid_) + "sending TERMINATION status to oss";
             msg_manager_->sendMessage(ppid_, pid_, ProcessStatus::TERMINATE, -1, 0);
+
             break;
+        } else {
+            std::cout << "UserProcess " + std::to_string(pid_) + " sending OSS_CONTROL status to oss";
+            msg_manager_->sendMessage(ppid_, pid_, ProcessStatus::OSS_CONTROL, -1, 0);
         }
     }
-
+    std::cout << "UserProcess " + std::to_string(pid_) + " terminating...";
     cleanUp();
     return EXIT_SUCCESS;
 }
