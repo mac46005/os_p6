@@ -1,7 +1,7 @@
 #include "../../include/oss/oss_output.hpp"
 
 
-OSS::Output::Output(std::string operation_log_file_name): operation_log_file_name_(operation_log_file_name) {
+OSS::OssOutput::OssOutput(std::string operation_log_file_name): operation_log_file_name_(operation_log_file_name) {
     int fd = open(operation_log_file_name.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644);
     if (fd == -1) {
         throw std::runtime_error("OSS::Output::Output() failed to open file: " + operation_log_file_name);
@@ -9,19 +9,11 @@ OSS::Output::Output(std::string operation_log_file_name): operation_log_file_nam
 
     close(fd);
 
-    fd = open(debug_log_file_name_.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644);
-    if (fd == -1) {
-        throw std::runtime_error("OSS::Output::Output() failed to open file: " + debug_log_file_name_);
-    }
-
-    close(fd);
-
     operation_log_stream_.open(operation_log_file_name, std::ios::out | std::ios::app);
-    debug_log_stream_.open(debug_log_file_name_, std::ios::out | std::ios::app);
 
 }
 
-void OSS::Output::appendOption(
+void OSS::OssOutput::appendOption(
     Color::ColorBuilder &cb,
     std::string option,
     std::string arg)
@@ -34,7 +26,7 @@ void OSS::Output::appendOption(
     Color::space(cb);
     Color::optionalContainerEnd(cb);
 }
-void OSS::Output::appendOptionInfo(Color::ColorBuilder &cb, std::string option, std::string arg, std::string description)
+void OSS::OssOutput::appendOptionInfo(Color::ColorBuilder &cb, std::string option, std::string arg, std::string description)
 {
     appendOption(cb, option, arg);
     Color::newLine(cb);
@@ -42,7 +34,7 @@ void OSS::Output::appendOptionInfo(Color::ColorBuilder &cb, std::string option, 
     Color::defaultOutput(cb, description);
     Color::newLine(cb);
 }
-void OSS::Output::printHelpMessage()
+void OSS::OssOutput::printHelpMessage()
 {
     Color::ColorBuilder cb;
 
@@ -64,8 +56,7 @@ void OSS::Output::printHelpMessage()
     Color::newLine(cb);
 
     Color::label(cb, "PURPOSE");
-    Color::defaultOutput(
-        cb,
+    cb.appendForeground(Color::Colors::DEFAULT, 
         "This program simulates an operating system that launches several worker processes.\n"
         "The simulated oss manages and schedules workers to work a certain time limit and also manage resources.\n"
         "All workers can decide how to utilize \"working\" time and resources.");
@@ -82,13 +73,13 @@ void OSS::Output::printHelpMessage()
     std::cout << cb.build();
 }
 
-const std::string OSS::Output::currentTimeToString(const OSSClock *oss_clock) const {
-    return oss_clock->toString();
-}
+// const std::string OSS::OssOutput::currentTimeToString(const OSSClock *oss_clock) const {
+//     return oss_clock->toString();
+// }
 
 
 
-const std::string OSS::Output::repeatStr(const int n, const std::string content) const {
+const std::string OSS::OssOutput::repeatStr(const int n, const std::string content) const {
     std::string output = "";
     for (int i = 0; i < n; i++) {
         output += content;
@@ -97,98 +88,8 @@ const std::string OSS::Output::repeatStr(const int n, const std::string content)
 }
 
 
-const std::string OSS::Output::logLevelToString(LogLevel log_level) const {
-    switch (log_level)
-    {
-    case LogLevel::INFO:
-        return "INFO";
-    case LogLevel::CAUTION:
-        return "CAUTION";
-    case LogLevel::WARNING:
-        return "WARNING";
-    }
-}
 
-
-const Color::ColorBuilder OSS::Output::debugConsoleTemplate(const LogLevel log_level, const Color::Colors border_color,const std::string topic,const std::string message) const {
-    Color::ColorBuilder cb;
-    cb.appendForeground(border_color, Color::border());
-    Color::newLine(cb);
-    cb.appendForeground(border_color, Color::border());
-    Color::newLine(cb);
-    cb.appendForeground(border_color, repeatStr(8, std::string(logLevelToString(log_level))));
-    Color::newLine(cb);
-    Color::label(cb, "topic");
-    Color::tab(cb);
-    cb.appendForeground(Color::Colors::CYAN, topic);
-    Color::newLine(cb); 
-    Color::label(cb, "message");
-    Color::newLine(cb);
-    cb.appendForeground(Color::Colors::DEFAULT, message);
-    Color::newLine(cb);
-    cb.appendForeground(border_color, repeatStr(8, std::string(logLevelToString(log_level))));
-    Color::newLine(cb);
-    cb.appendForeground(border_color, Color::border());
-    Color::newLine(cb);
-    cb.appendForeground(border_color, Color::border());
-    Color::newLine(cb);
-    return cb;
-}
-
-
-const std::string OSS::Output::debugLogTemplate(const LogLevel log_level,const std::string topic, const std::string message) const {
-    std::string output = "";
-    std::string space = " ";
-    std::string tab = "\t";
-    std::string new_line = "\n";
-
-    output += logLevelToString(log_level);
-    output += tab + "topic: " + topic;
-    output += tab + "message:" + space + message;
-    return output;
-}
-
-
-void OSS::Output::logDebugINFO(const std::string topic, const std::string message) {
-    Color::ColorBuilder cb;
-    std::string sb;
-    LogLevel lvl = LogLevel::INFO;
-    cb = debugConsoleTemplate(lvl, Color::Colors::DEFAULT, topic, message);
-    sb = debugLogTemplate(lvl, topic, message);
-
-    std::cout << cb.build();
-    debug_log_stream_ << sb << std::endl;
-}
-
-
-void OSS::Output::logDebugCAUTION(const std::string topic, const std::string message) {
-    Color::ColorBuilder cb;
-    std::string sb;
-    LogLevel lvl = LogLevel::CAUTION;
-    cb = debugConsoleTemplate(lvl, Color::Colors::YELLOW, topic, message);
-    sb = debugLogTemplate(lvl, topic, message);
-
-    std::cout << cb.build();
-    debug_log_stream_ << sb << std::endl;
-}
-
-
-void OSS::Output::logDebugWARNING(const std::string topic, const std::string message) {
-    Color::ColorBuilder cb;
-    std::string sb;
-    LogLevel lvl = LogLevel::WARNING;
-    cb = debugConsoleTemplate(lvl, Color::Colors::RED, topic, message);
-    sb = debugLogTemplate(lvl, topic, message);
-
-    std::cout << cb.build();
-    debug_log_stream_ << sb << std::endl;
-}
-
-
-
-
-
-void OSS::Output::writeToOperationLog(const std::string &line) {
+void OSS::OssOutput::writeToOperationLog(const std::string &line) {
     std::cout << line << std::endl;
     if (operation_log_stream_.is_open() && operation_log_line_cout_ < MAX_OPERATION_LOG_LINES) {
         operation_log_stream_ << line << std::endl;
@@ -201,13 +102,13 @@ void OSS::Output::writeToOperationLog(const std::string &line) {
 
 
 
-void OSS::Output::logProcessLaunch(pid_t pid, OSSClock *clock) {
-    writeToOperationLog("OSS launched process pid " + std::to_string(pid) + " at time " + clock->toString());
-}
+// void OSS::OssOutput::logProcessLaunch(pid_t pid, OSSClock *clock) {
+//     writeToOperationLog("OSS launched process pid " + std::to_string(pid) + " at time " + clock->toString());
+// }
 
 
 
-void OSS::Output::cleanUp() {
-    debug_log_stream_.close();
+void OSS::OssOutput::cleanUp() {
+    closeDebugFile();
     operation_log_stream_.close();
 }

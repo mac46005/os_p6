@@ -1,15 +1,13 @@
 #pragma once
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <fcntl.h>
-#include <unistd.h>
+#include "../logger/logger.hpp"
+#include "argument_error.hpp"
+#include "../error/error.hpp"
 #include "../color/ui.hpp"
-#include "oss_clock.hpp"
+#include "pcb_queue.hpp"
 
-namespace OSS
-{
-    class Output
+
+namespace OSS {
+    class OssOutput : public Logger
     {
     private:
         enum LogLevel
@@ -19,17 +17,12 @@ namespace OSS
             WARNING
         };
         std::string operation_log_file_name_;
-        const std::string debug_log_file_name_ = "debug_log.txt";
         std::ofstream operation_log_stream_;
-        std::ofstream debug_log_stream_;
 
         int operation_log_line_cout_ = 0;
         const int MAX_OPERATION_LOG_LINES = 10000;
-        const std::string currentTimeToString(const OSSClock *oss_clock) const;
+        // const std::string currentTimeToString(const OSSClock *oss_clock) const;
         const std::string repeatStr(const int n, const std::string content) const;
-        const std::string logLevelToString(LogLevel log_level) const;
-        const Color::ColorBuilder debugConsoleTemplate(const LogLevel log_level, const Color::Colors border_color, const std::string topic, const std::string message) const;
-        const std::string debugLogTemplate(const LogLevel log_level, const std::string topic, const std::string message) const;
         void writeToOperationLog(const std::string &line);
 
         void appendOption(
@@ -45,13 +38,9 @@ namespace OSS
         );
     public:
         void printHelpMessage();
-        explicit Output(std::string operation_log_file_name_);
+        explicit OssOutput(std::string operation_log_file_name_);
 
-        void logDebugINFO(const std::string topic, const std::string message);
-        void logDebugCAUTION(const std::string topic, const std::string message);
-        void logDebugWARNING(const std::string topic, const std::string message);
-
-        void logProcessLaunch(pid_t pid, OSSClock *clock);
+        // void logProcessLaunch(pid_t pid, OSSClock *clock);
 
         void cleanUp();
     };

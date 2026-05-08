@@ -9,7 +9,9 @@ COLOR := color
 MSG := msg
 ERROR := error
 CLOCK := clock
+LOGGER := logger
 
+LOGGER_SRC := $(wildcard $(SRC_DIR)/$(LOGGER)/*.cpp)
 CLOCK_SRC := $(wildcard $(SRC_DIR)/$(CLOCK)/*.cpp)
 MSG_SRC := $(wildcard $(SRC_DIR)/$(MSG)/*.cpp)
 COLOR_SRC := $(wildcard $(SRC_DIR)/$(COLOR)/*.cpp)
@@ -17,6 +19,7 @@ ERROR_SRC := $(wildcard $(SRC_DIR)/$(ERROR)/*.cpp)
 TARGET1_SRC := $(wildcard $(SRC_DIR)/$(TARGET1)/*.cpp)
 TARGET2_SRC := $(wildcard $(SRC_DIR)/$(TARGET2)/*.cpp)
 
+LOGGER_OBJ := $(patsubst $(SRC_DIR)/$(LOGGER)/*.cpp, $(BUILD_DIR)/$(LOGGER)/%.o, $(LOGGER_SRC))
 CLOCK_OBJ := $(patsubst $(SRC_DIR)/$(CLOCK)/*.cpp, $(BUILD_DIR)/$(CLOCK)/%.o, $(CLOCK_SRC))
 MSG_OBJ := $(patsubst $(SRC_DIR)/$(MSG)/*.cpp, $(BUILD_DIR)/$(MSG)/%.o, $(MSG_SRC))
 COLOR_OBJ := $(patsubst $(SRC_DIR)/$(COLOR)/*.cpp, $(BUILD_DIR)/$(COLOR)/%.o, $(COLOR_SRC))
@@ -24,7 +27,7 @@ ERROR_OBJ := $(patsubst $(SRC_DIR)/$(ERROR)/*.cpp, $(BUILD_DIR)/$(ERROR)/%.o, $(
 TARGET1_OBJ := $(patsubst $(SRC_DIR)/$(TARGET1)/*.cpp, $(BUILD_DIR)/$(TARGET1)/%.o, $(TARGET1_SRC))
 TARGET2_OBJ := $(patsubst $(SRC_DIR)/$(TARGET2)/*.cpp, $(BUILD_DIR)/$(TARGET2)/%.o, $(TARGET2_SRC))
 
-COMMON_OBJS := $(MSG_OBJ) $(CLOCK_OBJ) $(ERROR_OBJ) $(COLOR_OBJ)
+COMMON_OBJS := $(MSG_OBJ) $(CLOCK_OBJ) $(ERROR_OBJ) $(COLOR_OBJ) ${LOGGER_OBJ}
 
 all:	$(TARGET1) $(TARGET2)
 
@@ -50,6 +53,9 @@ $(BUILD_DIR)/$(ERROR)/%.o:	$(SRC_DIR)/$(ERROR)/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
 $(BUILD_DIR)/$(CLOCK)/%.o:	$(SRC_DIR)/$(CLOCK)/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -c $^ -o $@
+$(BUILD_DIR)/$(LOGGER)/%.o:	$(SRC_DIR)/$(LOGGER)/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
 

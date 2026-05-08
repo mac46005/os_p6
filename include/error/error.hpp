@@ -8,18 +8,18 @@ class Error : public std::runtime_error {
     private:
         std::string subject_ = "";
         std::string from_ = "";
-        std::string err_message_ = "";
+        std::string err_message_ = "";        
     public:
         explicit Error(
-            std::string subject,
-            std::string from,
-            const std::string &message,
+            std::string subject, 
+            std::string from, 
+            const std::string &message, 
             const std::string err_message
-        ):
-        subject_(subject),
-        from_(from),
+        ): 
+        subject_(subject), 
+        from_(from), 
         std::runtime_error(message),
-        err_message_(err_message){}
+        err_message_(err_message) {}
 
         inline std::string getSubject() {
             return subject_;
@@ -30,8 +30,4 @@ class Error : public std::runtime_error {
         inline std::string getErrMessage() {
             return err_message_;
         }
-
-        inline std::string toString() {
-            std::string tostr = subject_ + " " + from_ + " " + what() + " " + err_message_;
-        }
-};
+    };

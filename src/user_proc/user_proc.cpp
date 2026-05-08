@@ -1,42 +1,56 @@
-#include "../../include/user_proc/user_proc.hpp";
-#include <iostream>
+#include "../../include/user_proc/user_proc.hpp"
+#include <ctime>
 
-UserProcess::UserProcess::UserProcess(int argc, char **argv) {
+UserProcess::UserProcess(int argc, char **argv)
+{
     pid_ = getpid();
     ppid_ = getppid();
 
-    user_clock_manager_ = new UserClockManager("UserProcess", "./src/oss/oss.cpp", std::stoi(argv[1]), std::stoi(argv[2]));
-    msg_manager_ = new MsgManager("msgq.txt", 0644, pid_);
+    logger_ = new Logger();
+
+    argument_processor_ = new ArgumentProcessor(argc, argv);
+
+    argument_processor_->process(
+        [this](Options options)
+        {
+            clock_checker_ = new ClockChecker(options.sec, options.nano, logger_);
+        }
+    );
+
+    srand(getpid() ^ time(nullptr));
+    msg_manager_ = new MsgManager("msgq.txt", 0644, pid_, logger_);
+    
 }
 
-int UserProcess::UserProcess::run() {
-    MsgBuffer recieve{};
-    while(true) {
-        msg_manager_->receiveMessage(
-            [this, &recieve](MsgBuffer msg) {
-                recieve = msg;
-            },
-            0
-        );
-        std::cout << "UserProcess " + std::to_string(pid_) + " recieved message\n";
+int UserProcess::run()
+{
+    try
+    {
+        MsgBuffer recieve{};
+        while (true)
+        {
+            msg_manager_->recieveMessage(
+                [this, &recieve](MsgBuffer msg)
+                {
+                    recieve = msg;
 
+                    // dont forget that parent can force kill you
+                },
+                0
+            );
 
-        if (user_clock_manager_->isTimeUp()) {
-            std::cout << "UserProcess " + std::to_string(pid_) + "sending TERMINATION status to oss";
-            msg_manager_->sendMessage(ppid_, pid_, ProcessStatus::TERMINATE, -1, 0);
-
-            break;
-        } else {
-            std::cout << "UserProcess " + std::to_string(pid_) + " sending OSS_CONTROL status to oss";
-            msg_manager_->sendMessage(ppid_, pid_, ProcessStatus::OSS_CONTROL, -1, 0);
-        }
+        }   
+        cleanUp();
     }
-    std::cout << "UserProcess " + std::to_string(pid_) + " terminating...";
-    cleanUp();
+    catch (std::exception &e)
+    {
+        return EXIT_FAILURE;
+    }
+
     return EXIT_SUCCESS;
 }
 
-void UserProcess::UserProcess::cleanUp() {
-    user_clock_manager_->cleanUp();
-    delete user_clock_manager_;
+void UserProcess::cleanUp()
+{
+    clock_checker_->cleanUp();
 }
