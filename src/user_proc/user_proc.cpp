@@ -8,6 +8,8 @@ UserProcess::UserProcess(int argc, char **argv)
 
     logger_ = new Logger();
 
+    logger_->logDebugINFO("UserProcess::UserProcess()", "Initializing process...");
+
     argument_processor_ = new ArgumentProcessor(argc, argv);
 
     argument_processor_->process(
@@ -39,11 +41,24 @@ int UserProcess::run()
                 0
             );
 
+            if (clock_checker_->isTimeUp())
+            {
+                std::cout << "UserProcess " + std::to_string(pid_) + "sending TERMINATION status to oss";
+                msg_manager_->sendMessage(ppid_, pid_, ProcessStatus::TERMINATE, -1, 0);
+
+                break;
+            }
+            else
+            {
+                std::cout << "UserProcess " + std::to_string(pid_) + " sending OSS_CONTROL status to oss";
+                msg_manager_->sendMessage(ppid_, pid_, ProcessStatus::OSS_CONTROL, -1, 0);
+            }
         }   
         cleanUp();
     }
     catch (std::exception &e)
     {
+        logger_->logDebugWARNING(std::string("PID ") + std::to_string(pid_) + " FUALT", e.what());
         return EXIT_FAILURE;
     }
 

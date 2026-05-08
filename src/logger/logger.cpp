@@ -20,6 +20,7 @@ const std::string Logger::logLevelToString(LogLevel log_level) {
         case LogLevel::WARNING:
             return "WARNING";
     }
+    return "";
 }
 
 const Color::Colors Logger::logLevelToColors(LogLevel log_level) {
@@ -31,9 +32,10 @@ const Color::Colors Logger::logLevelToColors(LogLevel log_level) {
         case LogLevel::WARNING:
             return Color::Colors::RED;
     }
+    return Color::Colors::DEFAULT;
 }
 
-const std::string Logger::debugLogTemplate(const LogLevel log_level, std::string topic, std::string message) {
+const void Logger::outputDebugLogTemplate(const LogLevel log_level, std::string topic, std::string message) {
     Color::ColorBuilder cb;
     cb.appendForeground(logLevelToColors(log_level), logLevelToString(log_level));
     Color::tab(cb);
@@ -49,14 +51,14 @@ const std::string Logger::debugLogTemplate(const LogLevel log_level, std::string
 
 
 void Logger::logDebugINFO(const std::string topic, const std::string message) {
-    debugLogTemplate(LogLevel::INFO, topic, message);
+    outputDebugLogTemplate(LogLevel::INFO, topic, message);
 }
 
 void Logger::logDebugCAUTION(const std::string topic, const std::string message) {
-    debugLogTemplate(LogLevel::CAUTION, topic, message);
+    outputDebugLogTemplate(LogLevel::CAUTION, topic, message);
 }
 
 void Logger::logDebugWARNING(const std::string topic, const std::string message) {
-    debugLogTemplate(LogLevel::WARNING, topic, message);
+    outputDebugLogTemplate(LogLevel::WARNING, topic, message);
 }
 

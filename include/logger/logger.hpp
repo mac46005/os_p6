@@ -14,7 +14,7 @@ private:
     std::ofstream debug_log_stream_;
     const std::string logLevelToString(LogLevel log_level);
     const Color::Colors logLevelToColors(LogLevel log_level);
-    const std::string debugLogTemplate(const LogLevel log_level, std::string topic, std::string message);
+    const void outputDebugLogTemplate(const LogLevel log_level, std::string topic, std::string message);
 public:
     void initializeDebugFile();
     void closeDebugFile();
