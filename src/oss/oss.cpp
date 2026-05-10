@@ -101,6 +101,7 @@ int OSS::OSS::run()
         
     }
     Color::printInfo("OSS", "Terminating...");
+    oss_output_->printCompletedTable(scheduler_->getCompletedProcesses());
     // oss_output_->logFinalReport(resource_manager_, scheduler_);
     cleanUp();
     return EXIT_SUCCESS;

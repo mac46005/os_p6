@@ -96,12 +96,65 @@ void OSS::OssOutput::writeToOperationLog(const std::string &line) {
         operation_log_line_cout_++;
     }
 }
+std::string OSS::OssOutput::timeToString(Time time) {
+    std::string str = std::to_string(time.sec) + ":" + std::to_string(time.nano);
+    return str;
+}
+
+std::string OSS::OssOutput::infoTab(std::string title, std::string content, bool colored) {
+    std::string tab = "";
+    if (colored) {
+        Color::ColorBuilder cb;
+        cb.appendForeground(Color::Colors::YELLOW, title + ": ");
+        Color::space(cb);
+        cb.appendForeground(Color::Colors::DEFAULT, content);
+        tab = cb.build();
+
+    } else {
+        tab = title + " " + content;
+    }
+
+    return tab;
+}
+
+std::string OSS::OssOutput::pcbToString(PCB pcb, bool colored) {
+    std::string str = "";
+
+    if (colored) {
+        Color::ColorBuilder cb;
+        cb.append(pidTab(pcb.pid, true));
+        Color::tab(cb);
+        cb.append(infoTab("started at", timeToString(pcb.start_time), true));
+        Color::tab(cb);
+        cb.append(infoTab("ended at", timeToString(pcb.end_time), true));
+        str = cb.build();
+    } else {
+        str = pidTab(pcb.pid, false) + "\t" + infoTab("started", timeToString(pcb.start_time), false) + "\t" + infoTab("ended", timeToString(pcb.end_time), false);
+    }
+    return str;
+}
 
 
+void OSS::OssOutput::printCompletedTable(std::vector<PCB> completed_list) {
+    Color::ColorBuilder cb;
+    std::string sb = "";
 
+    std::string title = "## Completed Process list ###################################################################";
 
+    debug_log_stream_ << title << std::endl;
+    cb.appendForeground(Color::Colors::GREEN, title);
 
+    Color::newLine(cb);
+    for (auto p : completed_list) {
+        cb.append(pcbToString(p, true));
+        Color::newLine(cb);
 
+        debug_log_stream_ << pcbToString(p, false) << std::endl;
+    }
+
+    
+    
+}
 // void OSS::OssOutput::logProcessLaunch(pid_t pid, OSSClock *clock) {
 //     writeToOperationLog("OSS launched process pid " + std::to_string(pid) + " at time " + clock->toString());
 // }

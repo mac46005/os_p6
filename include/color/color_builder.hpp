@@ -8,7 +8,7 @@
 namespace Color {
     class ColorBuilder {
     public:
-        ColorBuilder &appendForeground(Colors color, std::string message) {
+        inline ColorBuilder &appendForeground(Colors color, std::string message) {
            output_ += prefix_;
            switch (color) {
                case Colors::BLACK:
@@ -46,6 +46,10 @@ namespace Color {
            output_ += prefix_ + "99m";
 
            return *this;
+        }
+        inline ColorBuilder &append(std::string content) {
+            output_ += content;
+            return *this;
         }
         std::string build() {
             return output_;

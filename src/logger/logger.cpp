@@ -41,19 +41,37 @@ const void Logger::outputDebugLogTemplate(const LogLevel log_level, std::string 
     cb.appendForeground(logLevelToColors(log_level), logLevelToString(log_level));
     Color::tab(cb);
     cb.appendForeground(Color::Colors::YELLOW, "PID ");
-    cb.appendForeground(Color::Colors::CYAN, std::to_string(pid));
+    cb.appendForeground(Color::Colors::CYAN, pidToString(pid));
     Color::tab(cb);
     cb.appendForeground(Color::Colors::CYAN, topic);
     Color::tab(cb);
     cb.appendForeground(Color::Colors::DEFAULT, message);
     std::cout << cb.build() << std::endl;
 
-    std::string log = logLevelToString(log_level) + " " + "PID " + std::to_string(pid) + "\t" + topic + "\t" + message;
+    std::string log = logLevelToString(log_level) + " " + pidTab(pid,false) + "\t" + topic + "\t" + message;
     debug_log_stream_ <<  log << std::endl;
     debug_log_stream_.flush();
 }
+std::string Logger::pidToString(pid_t pid) {
+    std::string pid_str = std::to_string(pid);
+    return pid_str;
+}
+std::string Logger::pidTab(pid_t pid, bool colored) {
+    std::string tab = "";
 
+    if (colored) {
+        Color::ColorBuilder cb;
+        cb.appendForeground(Color::Colors::YELLOW, "PID");
+        Color::space(cb);
+        cb.appendForeground(Color::Colors::CYAN, pidToString(pid));
+        tab = cb.build();
+    } else {
+        tab = "PID " + pidToString(pid);
+    }
 
+    return tab;
+    
+}
 void Logger::logDebugINFO(const std::string topic, const std::string message) {
     outputDebugLogTemplate(LogLevel::INFO, topic, message);
 }

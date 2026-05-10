@@ -4,18 +4,14 @@
 #include "../error/error.hpp"
 #include "../color/ui.hpp"
 #include "pcb_queue.hpp"
-
+#include <vector>
+#include "pcb.hpp"
+#include "../clock/time.hpp"
 
 namespace OSS {
     class OssOutput : public Logger
     {
     private:
-        enum LogLevel
-        {
-            INFO,
-            CAUTION,
-            WARNING
-        };
         std::string operation_log_file_name_;
         std::ofstream operation_log_stream_;
 
@@ -36,12 +32,17 @@ namespace OSS {
             std::string arg, 
             std::string description
         );
+
+        std::string infoTab(std::string title, std::string content, bool colored);
+        std::string timeToString(Time time);
+
     public:
         void printHelpMessage();
         explicit OssOutput(std::string operation_log_file_name_);
 
         // void logProcessLaunch(pid_t pid, OSSClock *clock);
-
+        void printCompletedTable(std::vector<PCB> completed_list);
+        std::string pcbToString(PCB pcb, bool colored);
         void cleanUp();
     };
 }

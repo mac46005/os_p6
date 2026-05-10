@@ -11,11 +11,16 @@ class Logger
 {
 private:
     const std::string debug_log_file_name_ = "debug.log";
-    std::ofstream debug_log_stream_;
+    
     const std::string logLevelToString(LogLevel log_level);
     const Color::Colors logLevelToColors(LogLevel log_level);
     const void outputDebugLogTemplate(const LogLevel log_level, std::string topic, std::string message);
+protected:
+    std::ofstream debug_log_stream_;
+    std::string pidToString(pid_t pid);
+    std::string pidTab(pid_t pid, bool colored);
 public:
+    
     void initializeDebugFile();
     void closeDebugFile();
     void logDebugINFO(const std::string topic, const std::string message);
