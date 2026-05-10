@@ -9,4 +9,5 @@ public:
     explicit ClockChecker(int max_sec, int max_nano, Logger *logger);
     bool isTimeUp();
     void cleanUp();
+    std::string toString();
 };

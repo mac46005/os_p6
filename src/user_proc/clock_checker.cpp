@@ -22,3 +22,7 @@ bool ClockChecker::isTimeUp() {
 void ClockChecker::cleanUp() {
     clock_->detach();
 }
+
+std::string ClockChecker::toString() {
+    return clock_->toString();
+}

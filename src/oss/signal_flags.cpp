@@ -1,5 +1,4 @@
 #include "../../include/oss/signal_flags.hpp"
-
 volatile sig_atomic_t g_timeout = 0;
 volatile sig_atomic_t g_stop = 0;
 void signalHandler(int sig) {

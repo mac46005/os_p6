@@ -16,18 +16,11 @@ OSS::Scheduler::Scheduler(
 
 OSS::PCB OSS::Scheduler::createPCB(pid_t pid)
 {
-    Time current_time = oss_clock_->getCurrentTime();
     OSS::PCB pcb{
         .pid = pid,
-        .start_sec = current_time.sec,
-        .start_nano = current_time.nano,
+        .start_time = oss_clock_->getCurrentTime(),        
         .requested_resource = -1
     };
-
-    for (auto &i : pcb.resource_allocated) {
-        i = 0;
-    }
-
     return pcb;
 }
 
@@ -37,7 +30,7 @@ void OSS::Scheduler::forkProcess()
 
     Time child_time_limit_ = oss_clock_->getChildTimeLimit();
     Clock::addTimeToPtrTime(&child_time_limit_, current_time);
-
+    logger_->logDebugWARNING("Scheduler::forkProcess()", "New child time limit = " + std::to_string(child_time_limit_.sec) + ":" + std::to_string(child_time_limit_.nano));
     std::string child_runtime_sec_str = std::to_string(child_time_limit_.sec);
     std::string child_runtime_nano_str = std::to_string(child_time_limit_.nano);
 
@@ -45,7 +38,8 @@ void OSS::Scheduler::forkProcess()
         const_cast<char *>("./user_proc"),
         const_cast<char *>(child_runtime_sec_str.c_str()),
         const_cast<char *>(child_runtime_nano_str.c_str()),
-        nullptr};
+        nullptr
+    };
 
     pid_t pid = fork();
     if (pid == 0)
@@ -65,6 +59,7 @@ void OSS::Scheduler::forkProcess()
             linear_process_pid_ = pid;
         }
 
+        logger_->logDebugCAUTION("Scheduler::forkProcess()", "\tPCB Count: " + std::to_string(pcb_info_.pcb_count_) + "\tProcess Count: " + std::to_string(pcb_info_.process_count_) + "\tPID: " + std::to_string(pid) + "\tIs Linear Process: " + std::to_string(is_running_linear_process_));
         // output to log
     }
 }
@@ -86,6 +81,7 @@ void OSS::Scheduler::launchChildrenIfAble()
             !pcb_info_.isSimulCountReached()
         )
         {
+            logger_->logDebugCAUTION("OSS::Scheduler::launchChildrenIfAble()", "Launching simultaneous process");
             pcb_info_.simultaneous_count_++;
             forkProcess();
         }
@@ -93,6 +89,7 @@ void OSS::Scheduler::launchChildrenIfAble()
             !pcb_info_.isProcCountReached() && !is_running_linear_process_
         ) 
         {
+            logger_->logDebugCAUTION("OSS::Scheduler::launchChildrenIfAble()", "Launching linear process");
             // ADD FLAG THAT LINEAR PROCESS RUN
             is_running_linear_process_ = true;
             forkProcess();
@@ -125,45 +122,53 @@ OSS::PCB OSS::Scheduler::getCurrentProcessingRunning() {
 void OSS::Scheduler::requeueCurrentProcess() {
     if (current_process_running_.pid > 0) {
         pcb_ready_queue_->enqueue(current_process_running_);
+
+
+        if (is_running_linear_process_ && current_process_running_.pid == linear_process_pid_) {
+            is_running_linear_process_ = false;
+            linear_process_pid_ = -1;
+        }
+        logger_->logDebugCAUTION("Scheduler::requeueCurrentProcess()", "Requeued PID " + std::to_string(current_process_running_.pid) + "\tis_running_linear_process_ = " + std::to_string(is_running_linear_process_));
         current_process_running_= PCB{.pid = -1};
+        
+        
     }
 }
 
 
+void OSS::Scheduler::cleanUpTerminatedPid(pid_t pid) {
 
+    
+}
 
 void OSS::Scheduler::terminateProcess()
 {
-    // pcb_info_.pcb_count_--;
-
-    // if (is_running_linear_process_) {
-    //     if (current_process_running_.pid == linear_process_pid_) {
-    //         is_running_linear_process_ = false;
-    //         linear_process_pid_ = -1;
-    //     }
-    // }
-
-    // releaseCurrentProcessResources();
-
-    // Time current_time = oss_clock_->getCurrentTime();
-
-    // current_process_running_.end_sec = current_time.sec;
-    // current_process_running_.end_nano = current_time.nano;
-    // // output to log
-    // oss_output_->logTerminateProcess(current_process_running_.pid, oss_clock_);
-    // completed_processes.push_back(current_process_running_);
-    
-    // current_process_running_ = PCB{.pid = -1};
-
-    // canUnblockBlockedProcess();
-
     cleanUpTerminatedPid(current_process_running_.pid);
 }
 
 
 
 
+void OSS::Scheduler::handleTERMINATE(pid_t pid) {
 
+    logger_->logDebugWARNING("Scheduler::handleTERMINATE()", "PID " + std::to_string(pid) + " TERMINATED at " + oss_clock_->toString());
+
+    if (pid == current_process_running_.pid) {
+        pcb_info_.pcb_count_--;
+        if (linear_process_pid_ == pid) {
+            linear_process_pid_ = -1;
+            is_running_linear_process_ = false;
+        }
+        current_process_running_.end_time = oss_clock_->getCurrentTime();
+        completed_processes.push_back(current_process_running_);
+        current_process_running_ = PCB{.pid = -1};
+    }
+}
+
+void OSS::Scheduler::handleOSS_CONTROL() {
+    logger_->logDebugWARNING("Scheduler::handleOSS_CONTROL()", "Requeuing PID " + std::to_string(current_process_running_.pid));
+    requeueCurrentProcess();
+}
 
 void OSS::Scheduler::updateProcessInReadyQueue()
 {
@@ -188,7 +193,12 @@ void OSS::Scheduler::updateProcessInReadyQueue()
     msg_manager_->recieveMessage(
         [this](MsgBuffer msg) {
             switch (msg.status) {
-
+                case ProcessStatus::TERMINATE:
+                    handleTERMINATE(msg.sender_pid);
+                    break;
+                case ProcessStatus::OSS_CONTROL:
+                    handleOSS_CONTROL();
+                    break;
             }
         },
         0
@@ -211,10 +221,6 @@ void OSS::Scheduler::checkLinearProcessStatus() {
     }
 }
 
-void OSS::Scheduler::cleanUpTerminatedPid(pid_t pid) {
-
-    
-}
 
 
 void OSS::Scheduler::cleanUp()

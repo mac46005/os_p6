@@ -93,6 +93,9 @@ namespace OSS {
         void requeueCurrentProcess();
         PCB *findBlockedByPid(pid_t pid);
         void cleanUpTerminatedPid(pid_t pid);
+
+        void handleTERMINATE(pid_t pid);
+        void handleOSS_CONTROL();
         void cleanUp();
     };
 }

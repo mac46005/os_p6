@@ -8,7 +8,7 @@ UserProcess::UserProcess(int argc, char **argv)
 
     logger_ = new Logger();
 
-    logger_->logDebugINFO("UserProcess::UserProcess()", "Initializing process...");
+    
 
     argument_processor_ = new ArgumentProcessor(argc, argv);
 
@@ -21,7 +21,7 @@ UserProcess::UserProcess(int argc, char **argv)
 
     srand(getpid() ^ time(nullptr));
     msg_manager_ = new MsgManager("msgq.txt", 0644, pid_, logger_);
-    
+    logger_->logDebugINFO("UserProcess::UserProcess()", "PID " + std::to_string(pid_) + "\tInitialized at " + clock_checker_->toString());
 }
 
 int UserProcess::run()
@@ -43,17 +43,18 @@ int UserProcess::run()
 
             if (clock_checker_->isTimeUp())
             {
-                std::cout << "UserProcess " + std::to_string(pid_) + "sending TERMINATION status to oss";
+                logger_->logDebugCAUTION("UserProcess::run()", "Time is Up. Sending MSG to OSS and TERMINATING @ " + clock_checker_->toString());
                 msg_manager_->sendMessage(ppid_, pid_, ProcessStatus::TERMINATE, -1, 0);
 
                 break;
             }
             else
             {
-                std::cout << "UserProcess " + std::to_string(pid_) + " sending OSS_CONTROL status to oss";
+                logger_->logDebugCAUTION("UserProcess::run()", "Time is not Up, sending OSS_CONTROL to OSS  @ " + clock_checker_->toString());
                 msg_manager_->sendMessage(ppid_, pid_, ProcessStatus::OSS_CONTROL, -1, 0);
             }
-        }   
+        }
+        logger_->logDebugWARNING("UserProcess::run()", "Terminated");   
         cleanUp();
     }
     catch (std::exception &e)

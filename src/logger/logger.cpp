@@ -36,15 +36,19 @@ const Color::Colors Logger::logLevelToColors(LogLevel log_level) {
 }
 
 const void Logger::outputDebugLogTemplate(const LogLevel log_level, std::string topic, std::string message) {
+    pid_t pid = getpid();
     Color::ColorBuilder cb;
     cb.appendForeground(logLevelToColors(log_level), logLevelToString(log_level));
+    Color::tab(cb);
+    cb.appendForeground(Color::Colors::YELLOW, "PID ");
+    cb.appendForeground(Color::Colors::CYAN, std::to_string(pid));
     Color::tab(cb);
     cb.appendForeground(Color::Colors::CYAN, topic);
     Color::tab(cb);
     cb.appendForeground(Color::Colors::DEFAULT, message);
     std::cout << cb.build() << std::endl;
 
-    std::string log = logLevelToString(log_level) + "\t" + topic + "\t" + message;
+    std::string log = logLevelToString(log_level) + " " + "PID " + std::to_string(pid) + "\t" + topic + "\t" + message;
     debug_log_stream_ <<  log << std::endl;
     debug_log_stream_.flush();
 }

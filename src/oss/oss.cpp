@@ -17,6 +17,8 @@ OSS::OSS::OSS(int argc, char **argv)
                 {
                     oss_output_ = new OssOutput(options.logFile);
 
+                    oss_output_->initializeDebugFile();
+                    
                     oss_clock_ = new OSSClock(
                         "./src/oss/oss.cpp",
                         options.childTimeLimit,

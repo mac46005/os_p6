@@ -16,8 +16,8 @@ OSS::OssOutput::OssOutput(std::string operation_log_file_name): operation_log_fi
 void OSS::OssOutput::appendOption(
     Color::ColorBuilder &cb,
     std::string option,
-    std::string arg)
-{
+    std::string arg
+){
     Color::optionalContainerStart(cb);
     Color::space(cb);
     Color::option(cb, option);
