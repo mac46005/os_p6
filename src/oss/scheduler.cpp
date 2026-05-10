@@ -165,9 +165,21 @@ void OSS::Scheduler::handleTERMINATE(pid_t pid) {
     }
 }
 
-void OSS::Scheduler::handleOSS_CONTROL() {
-    logger_->logDebugWARNING("Scheduler::handleOSS_CONTROL()", "Requeuing PID " + std::to_string(current_process_running_.pid));
-    requeueCurrentProcess();
+void OSS::Scheduler::handleOSS_CONTROL(MsgBuffer msg) {
+
+    // logger_->logDebugWARNING("Scheduler::handleOSS_CONTROL()", "Requeuing PID " + std::to_string(current_process_running_.pid));
+    // requeueCurrentProcess();
+    AccessType access = msg.access;
+
+    switch (access) {
+        case AccessType::NONE:
+            requeueCurrentProcess();
+            break;
+        case AccessType::READ:
+            break;
+        case AccessType::WRITE:
+            break;
+    }
 }
 
 void OSS::Scheduler::updateProcessInReadyQueue()
@@ -186,7 +198,10 @@ void OSS::Scheduler::updateProcessInReadyQueue()
         current_process_running_.pid,
         getpid(),
         ProcessStatus::OSS_CONTROL,
-        -1,
+        0,
+        0,
+        0,
+        AccessType::NONE,
         0
     );
 
@@ -197,7 +212,7 @@ void OSS::Scheduler::updateProcessInReadyQueue()
                     handleTERMINATE(msg.sender_pid);
                     break;
                 case ProcessStatus::OSS_CONTROL:
-                    handleOSS_CONTROL();
+                    handleOSS_CONTROL(msg);
                     break;
             }
         },

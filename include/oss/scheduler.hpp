@@ -95,7 +95,7 @@ namespace OSS {
         void cleanUpTerminatedPid(pid_t pid);
 
         void handleTERMINATE(pid_t pid);
-        void handleOSS_CONTROL();
+        void handleOSS_CONTROL(MsgBuffer msg);
         void cleanUp();
     };
 }

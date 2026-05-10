@@ -13,17 +13,20 @@ MsgManager::MsgManager(const char *key, int permission, pid_t pid, Logger *logge
     }
 }
 
-void MsgManager::sendMessage(long mtype, pid_t sender_pid, ProcessStatus status, int resource, int message_flag) {
+void MsgManager::sendMessage(long mtype, pid_t sender_pid, ProcessStatus status, int address, int page, int offset, AccessType access, int msg_flag) {
     MsgBuffer buf{};
 
     buf.mtype = mtype;
     buf.sender_pid = sender_pid;
     buf.status = status;
-    buf.resource = resource;
+    buf.address = address;
+    buf.page = page;
+    buf.offset = offset;
+    buf.access = access;
 
     logger_->logDebugWARNING("MsgManager::sendMessage()", "Attempting to msgsnd() to " + std::to_string(buf.mtype));
 
-    if ((msgsnd(msqid_, &buf, sizeof(MsgBuffer) - sizeof(long), message_flag)) == -1) {
+    if ((msgsnd(msqid_, &buf, sizeof(MsgBuffer) - sizeof(long), msg_flag)) == -1) {
         throw Error("MsgManager", "sendMessage()", "Failed to msgsnd()", std::strerror(errno));
         // throw std::runtime_error(std::string("MsgManager FAILED to msgsnd() in MsgManager::sendMessage()\n") + std::string(std::strerror(errno)));
     }

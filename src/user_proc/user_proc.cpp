@@ -44,14 +44,34 @@ int UserProcess::run()
             if (clock_checker_->isTimeUp())
             {
                 logger_->logDebugCAUTION("UserProcess::run()", "Time is Up. Sending MSG to OSS and TERMINATING @ " + clock_checker_->toString());
-                msg_manager_->sendMessage(ppid_, pid_, ProcessStatus::TERMINATE, -1, 0);
+                msg_manager_->sendMessage(ppid_, pid_, ProcessStatus::TERMINATE, 0, 0, 0, AccessType::NONE, 0);
 
                 break;
             }
             else
             {
-                logger_->logDebugCAUTION("UserProcess::run()", "Time is not Up, sending OSS_CONTROL to OSS  @ " + clock_checker_->toString());
-                msg_manager_->sendMessage(ppid_, pid_, ProcessStatus::OSS_CONTROL, -1, 0);
+                // logger_->logDebugCAUTION("UserProcess::run()", "Time is not Up, sending OSS_CONTROL to OSS  @ " + clock_checker_->toString());
+                // msg_manager_->sendMessage(ppid_, pid_, ProcessStatus::OSS_CONTROL, 0, 0, 0, AccessType::NONE, 0);
+
+                int page = rand() % 16;
+                int offset = rand() % 1024;
+                int address = page * 1024 + offset;
+                bool is_write = (rand() % 100) < 20;
+                logger_->logDebugINFO("UserProcess::run()", "is_write: " + std::to_string(is_write) + "Chose page: " + std::to_string(page) + "\toffset: " + std::to_string(offset) + "\taddress: " + std::to_string(address));
+                
+                AccessType access = is_write ? AccessType::WRITE : AccessType::READ;
+                logger_->logDebugWARNING("UserProcess::run()", "Attempting to send message to OSS");
+                msg_manager_->sendMessage(
+                    ppid_,
+                    pid_,
+                    ProcessStatus::OSS_CONTROL,
+                    address,
+                    page,
+                    offset,
+                    access,
+                    0
+                );
+                logger_->logDebugINFO("UserProcess::run()", "Message sent successfully");
             }
         }
         logger_->logDebugWARNING("UserProcess::run()", "Terminated");   
