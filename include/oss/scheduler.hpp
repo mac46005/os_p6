@@ -6,6 +6,8 @@
 #include "../msg/msg_manager.hpp"
 #include "pcb.hpp"
 #include "../logger/logger.hpp"
+#include <unistd.h>
+#include <signal.h>
 
 namespace OSS {
     class OssOutput;
@@ -96,6 +98,7 @@ namespace OSS {
 
         void handleTERMINATE(pid_t pid);
         void handleOSS_CONTROL(MsgBuffer msg);
+        void handleMEMORY_REQUEST(MsgBuffer msg);
         void cleanUp();
     };
 }

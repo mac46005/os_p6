@@ -109,17 +109,32 @@ int OSS::OSS::run()
 
 
 void OSS::OSS::cleanUp() {
-    
+    if (scheduler_) {
+        scheduler_->cleanUp();
+        delete scheduler_;
+        scheduler_ = nullptr;
+    }
 
-    oss_clock_->cleanUp();
-    msg_manager_->cleanUp();
-    oss_output_->cleanUp();
-    scheduler_->cleanUp();
+    if (msg_manager_) {
+        msg_manager_->cleanUp();
+        delete msg_manager_;
+        msg_manager_ = nullptr;
+    }
 
-    delete scheduler_;
-    delete msg_manager_;
-    delete oss_clock_;
-    delete oss_output_;
+    if (oss_clock_) {
+        oss_clock_->cleanUp();
+        delete oss_clock_;
+        oss_clock_ = nullptr;
+    }
+
+    if (oss_output_) {
+        oss_output_->cleanUp();
+        delete oss_output_;
+        oss_output_ = nullptr;
+    }
+
+    delete argument_processor_;
+    argument_processor_ = nullptr;
 
 }
 

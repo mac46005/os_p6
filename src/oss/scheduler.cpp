@@ -6,8 +6,7 @@ OSS::Scheduler::Scheduler(
     OSSClock *oss_clock,
     OssOutput *oss_output,
     MsgManager *msg_manager,
-    Logger *logger
-) : oss_clock_(oss_clock), oss_output_(oss_output), msg_manager_(msg_manager), logger_(logger)
+    Logger *logger) : oss_clock_(oss_clock), oss_output_(oss_output), msg_manager_(msg_manager), logger_(logger)
 {
     pcb_info_.max_process_count_ = max_proc;
     pcb_info_.max_simultaneous_count_ = max_simul;
@@ -18,9 +17,13 @@ OSS::PCB OSS::Scheduler::createPCB(pid_t pid)
 {
     OSS::PCB pcb{
         .pid = pid,
-        .start_time = oss_clock_->getCurrentTime(),        
-        .requested_resource = -1
+        .start_time = oss_clock_->getCurrentTime(),
     };
+    for (int i = 0; i < PAGE_COUNT; i++)
+    {
+        pcb.page_table[i].frame = -1;
+        pcb.page_table[i].valid = false;
+    }
     return pcb;
 }
 
@@ -38,8 +41,7 @@ void OSS::Scheduler::forkProcess()
         const_cast<char *>("./user_proc"),
         const_cast<char *>(child_runtime_sec_str.c_str()),
         const_cast<char *>(child_runtime_nano_str.c_str()),
-        nullptr
-    };
+        nullptr};
 
     pid_t pid = fork();
     if (pid == 0)
@@ -55,7 +57,8 @@ void OSS::Scheduler::forkProcess()
         PCB pcb = createPCB(pid);
         pcb_ready_queue_->enqueue(pcb);
 
-        if (is_running_linear_process_) {
+        if (is_running_linear_process_)
+        {
             linear_process_pid_ = pid;
         }
 
@@ -78,16 +81,14 @@ void OSS::Scheduler::launchChildrenIfAble()
     if (pcb_info_.hasOpenPCBSlot() && oss_clock_->launchIntervalReached())
     {
         if (
-            !pcb_info_.isSimulCountReached()
-        )
+            !pcb_info_.isSimulCountReached())
         {
             logger_->logDebugCAUTION("OSS::Scheduler::launchChildrenIfAble()", "Launching simultaneous process");
             pcb_info_.simultaneous_count_++;
             forkProcess();
         }
         else if (
-            !pcb_info_.isProcCountReached() && !is_running_linear_process_
-        ) 
+            !pcb_info_.isProcCountReached() && !is_running_linear_process_)
         {
             logger_->logDebugCAUTION("OSS::Scheduler::launchChildrenIfAble()", "Launching linear process");
             // ADD FLAG THAT LINEAR PROCESS RUN
@@ -98,47 +99,42 @@ void OSS::Scheduler::launchChildrenIfAble()
     }
 }
 
-std::vector<OSS::PCB> OSS::Scheduler::getCompletedProcesses() const {
+std::vector<OSS::PCB> OSS::Scheduler::getCompletedProcesses() const
+{
     return completed_processes;
 }
-OSS::PCBQueue *OSS::Scheduler::getReadyQueue() {
+OSS::PCBQueue *OSS::Scheduler::getReadyQueue()
+{
     return pcb_ready_queue_;
 }
 
-std::vector<OSS::PCB> OSS::Scheduler::getBlockedList() {
+std::vector<OSS::PCB> OSS::Scheduler::getBlockedList()
+{
     return pcb_blocked_list;
 }
-OSS::PCB OSS::Scheduler::getCurrentProcessingRunning() {
+OSS::PCB OSS::Scheduler::getCurrentProcessingRunning()
+{
     return current_process_running_;
 }
 
-
-
-
-
-
-
-
-void OSS::Scheduler::requeueCurrentProcess() {
-    if (current_process_running_.pid > 0) {
+void OSS::Scheduler::requeueCurrentProcess()
+{
+    if (current_process_running_.pid > 0)
+    {
         pcb_ready_queue_->enqueue(current_process_running_);
 
-
-        if (is_running_linear_process_ && current_process_running_.pid == linear_process_pid_) {
+        if (is_running_linear_process_ && current_process_running_.pid == linear_process_pid_)
+        {
             is_running_linear_process_ = false;
             linear_process_pid_ = -1;
         }
         logger_->logDebugCAUTION("Scheduler::requeueCurrentProcess()", "Requeued PID " + std::to_string(current_process_running_.pid) + "\tis_running_linear_process_ = " + std::to_string(is_running_linear_process_));
-        current_process_running_= PCB{.pid = -1};
-        
-        
+        current_process_running_ = PCB{.pid = -1};
     }
 }
 
-
-void OSS::Scheduler::cleanUpTerminatedPid(pid_t pid) {
-
-    
+void OSS::Scheduler::cleanUpTerminatedPid(pid_t pid)
+{
 }
 
 void OSS::Scheduler::terminateProcess()
@@ -146,16 +142,16 @@ void OSS::Scheduler::terminateProcess()
     cleanUpTerminatedPid(current_process_running_.pid);
 }
 
-
-
-
-void OSS::Scheduler::handleTERMINATE(pid_t pid) {
+void OSS::Scheduler::handleTERMINATE(pid_t pid)
+{
 
     logger_->logDebugWARNING("Scheduler::handleTERMINATE()", "PID " + std::to_string(pid) + " TERMINATED at " + oss_clock_->toString());
 
-    if (pid == current_process_running_.pid) {
+    if (pid == current_process_running_.pid)
+    {
         pcb_info_.pcb_count_--;
-        if (linear_process_pid_ == pid) {
+        if (linear_process_pid_ == pid)
+        {
             linear_process_pid_ = -1;
             is_running_linear_process_ = false;
         }
@@ -165,30 +161,59 @@ void OSS::Scheduler::handleTERMINATE(pid_t pid) {
     }
 }
 
-void OSS::Scheduler::handleOSS_CONTROL(MsgBuffer msg) {
+void OSS::Scheduler::handleOSS_CONTROL(MsgBuffer msg)
+{
 
     // logger_->logDebugWARNING("Scheduler::handleOSS_CONTROL()", "Requeuing PID " + std::to_string(current_process_running_.pid));
     // requeueCurrentProcess();
     AccessType access = msg.access;
 
-    switch (access) {
-        case AccessType::NONE:
-            requeueCurrentProcess();
-            break;
-        case AccessType::READ:
-            break;
-        case AccessType::WRITE:
-            break;
+    switch (access)
+    {
+    case AccessType::NONE:
+        requeueCurrentProcess();
+        break;
+    case AccessType::READ:
+        break;
+    case AccessType::WRITE:
+        break;
     }
+}
+
+void OSS::Scheduler::handleMEMORY_REQUEST(MsgBuffer msg)
+{
+    std::string access_str = msg.access == AccessType::WRITE ? "WRITE" : "READ";
+
+    logger_->logDebugINFO(
+        "Scheduler::handleMEMORY_REQUEST()",
+        "PID " + std::to_string(msg.sender_pid) +
+            " requested " + access_str +
+            " address " + std::to_string(msg.address) +
+            " page " + std::to_string(msg.page) +
+            " offset " + std::to_string(msg.offset));
+
+    msg_manager_->sendMessage(
+        msg.sender_pid,
+        getpid(),
+        ProcessStatus::GRANTED,
+        msg.address,
+        msg.page,
+        msg.offset,
+        msg.access,
+        0);
+
+    requeueCurrentProcess();
 }
 
 void OSS::Scheduler::updateProcessInReadyQueue()
 {
-    if (current_process_running_.pid != -1) {
+    if (current_process_running_.pid != -1)
+    {
         return;
     }
 
-    if (pcb_ready_queue_->isEmpty()) {
+    if (pcb_ready_queue_->isEmpty())
+    {
         return;
     }
 
@@ -206,29 +231,41 @@ void OSS::Scheduler::updateProcessInReadyQueue()
     );
 
     msg_manager_->recieveMessage(
-        [this](MsgBuffer msg) {
-            switch (msg.status) {
-                case ProcessStatus::TERMINATE:
-                    handleTERMINATE(msg.sender_pid);
-                    break;
-                case ProcessStatus::OSS_CONTROL:
-                    handleOSS_CONTROL(msg);
-                    break;
+        [this](MsgBuffer msg)
+        {
+            switch (msg.status)
+            {
+            case ProcessStatus::TERMINATE:
+                handleTERMINATE(msg.sender_pid);
+                break;
+            case ProcessStatus::MEMORY_REQUEST:
+                handleMEMORY_REQUEST(msg);
+                break;
+            case ProcessStatus::OSS_CONTROL:
+                // handleOSS_CONTROL(msg);
+                handleOSS_CONTROL(msg);
+                break;
+            default:
+                logger_->logDebugWARNING("Scheduler::updateProcessInReadyyQueue()", "Unknown message status from PID " + std::to_string(msg.sender_pid));
+                requeueCurrentProcess();
+                break;
             }
         },
-        0
-    );
+        0);
 }
 
-void OSS::Scheduler::checkLinearProcessStatus() {
-    if (!is_running_linear_process_ || linear_process_pid_ <= 0) {
+void OSS::Scheduler::checkLinearProcessStatus()
+{
+    if (!is_running_linear_process_ || linear_process_pid_ <= 0)
+    {
         return;
     }
 
     int status = 0;
     pid_t result = waitpid(linear_process_pid_, &status, WNOHANG);
 
-    if (result == linear_process_pid_) {
+    if (result == linear_process_pid_)
+    {
         // is_running_linear_process_ = false;
         // linear_process_pid_ = -1;
         // pcb_info_.pcb_count_--;
@@ -236,30 +273,70 @@ void OSS::Scheduler::checkLinearProcessStatus() {
     }
 }
 
-
-
 void OSS::Scheduler::cleanUp()
 {
-    if (current_process_running_.pid > 0) {
+    logger_->logDebugWARNING("Scheduler::cleanUp()", "Cleaning up children");
+
+    if (current_process_running_.pid > 0)
+    {
         kill(current_process_running_.pid, SIGTERM);
     }
 
-    for (auto &pcb : pcb_blocked_list) {
-        if (pcb.pid > 0) {
+    for (auto &pcb : pcb_blocked_list)
+    {
+        if (pcb.pid > 0)
+        {
             kill(pcb.pid, SIGTERM);
         }
     }
 
-    pcb_ready_queue_->traverse(
-        [](PCB *pcb) {
-            if (pcb->pid > 0) {
-                kill(pcb->pid, SIGTERM);
-            }
+    if (pcb_ready_queue_)
+    {
+        pcb_ready_queue_->traverse(
+            [](PCB *pcb)
+            {
+                if (pcb->pid > 0)
+                {
+                    kill(pcb->pid, SIGTERM);
+                }
+            });
+    }
+
+    // Give children a small chance to exit.
+    usleep(100000);
+
+    // Force-kill anything still alive.
+    if (current_process_running_.pid > 0)
+    {
+        kill(current_process_running_.pid, SIGKILL);
+    }
+
+    for (auto &pcb : pcb_blocked_list)
+    {
+        if (pcb.pid > 0)
+        {
+            kill(pcb.pid, SIGKILL);
         }
-    );
+    }
+
+    if (pcb_ready_queue_)
+    {
+        pcb_ready_queue_->traverse(
+            [](PCB *pcb)
+            {
+                if (pcb->pid > 0)
+                {
+                    kill(pcb->pid, SIGKILL);
+                }
+            });
+    }
 
     int status = 0;
-    while (waitpid(-1, &status, 0) > 0){};
+    while (waitpid(-1, &status, WNOHANG) > 0)
+    {
+        // reap all exited children
+    }
 
     delete pcb_ready_queue_;
+    pcb_ready_queue_ = nullptr;
 }

@@ -4,7 +4,8 @@ enum ProcessStatus {
     TERMINATE,
     MEMORY_REQUEST,
     OSS_CONTROL,
-    GRANTED
+    GRANTED,
+    DENIED
 };
 enum AccessType {
     READ,

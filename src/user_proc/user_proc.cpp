@@ -35,11 +35,26 @@ int UserProcess::run()
                 [this, &recieve](MsgBuffer msg)
                 {
                     recieve = msg;
-
-                    // dont forget that parent can force kill you
                 },
                 0
             );
+
+            if (recieve.status == ProcessStatus::GRANTED) {
+                logger_->logDebugCAUTION("UserProcesss::run()", "ProcessStatus::GRANTED");
+                continue;
+            }
+
+
+            if (recieve.status != ProcessStatus::OSS_CONTROL) {
+                logger_->logDebugWARNING(
+                    "UserProcess::run()",
+                    "Unexpected message status"
+                );
+
+                continue;
+            }
+
+
 
             if (clock_checker_->isTimeUp())
             {
@@ -57,14 +72,14 @@ int UserProcess::run()
                 int offset = rand() % 1024;
                 int address = page * 1024 + offset;
                 bool is_write = (rand() % 100) < 20;
-                logger_->logDebugINFO("UserProcess::run()", "is_write: " + std::to_string(is_write) + "Chose page: " + std::to_string(page) + "\toffset: " + std::to_string(offset) + "\taddress: " + std::to_string(address));
+                logger_->logDebugINFO("UserProcess::run()", "is_write: " + std::to_string(is_write) + "\tChose page: " + std::to_string(page) + "\toffset: " + std::to_string(offset) + "\taddress: " + std::to_string(address));
                 
                 AccessType access = is_write ? AccessType::WRITE : AccessType::READ;
                 logger_->logDebugWARNING("UserProcess::run()", "Attempting to send message to OSS");
                 msg_manager_->sendMessage(
                     ppid_,
                     pid_,
-                    ProcessStatus::OSS_CONTROL,
+                    ProcessStatus::MEMORY_REQUEST,
                     address,
                     page,
                     offset,
