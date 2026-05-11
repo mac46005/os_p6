@@ -2,7 +2,7 @@
 #include <queue>
 #include "../logger/logger.hpp"
 #include "pcb.hpp"
-
+#include "../msg/msgbuffer.hpp"
 
 namespace OSS {
     struct MemoryResult {
@@ -35,7 +35,7 @@ namespace OSS {
 
         public:
             explicit MemoryManager(Logger *logger);
-            int accessMemory(PCB &pcv);
+            MemoryResult accessMemory(PCB &pcb, MsgBuffer msg);
             void printMemoryLayout();
             
     };
