@@ -18,4 +18,14 @@ int OSS::MemoryManager::findFreeFrame() {
 }
 
 
-OSS::Mem
+OSS::MemoryResult OSS::MemoryManager::accessMemory(PCB &pcb, MsgBuffer) {
+    MemoryResult result{};
+    result.page = msg.page;
+
+    if (msg.page < 0 || msg.page >= PAGE_COUNT) {
+        logger_->logDebugWARNING(
+            "MemoryManager::accessMemory",
+            "Invalid page request from PID " + std::to_string(pcb.pid) + " page " + std::to_string(msg.page));
+        )
+    }
+}
