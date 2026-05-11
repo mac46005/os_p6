@@ -83,7 +83,7 @@ int OSS::OSS::run()
                 oss_clock_->updateClockByQuantum();
 
                 if (shouldPrintTables()) {
-                    
+                    memory_manager_->printMemoryLayout();
                     advanceNextTableDump();
                 }
 
@@ -102,9 +102,12 @@ int OSS::OSS::run()
         }
         
     }
-    Color::printInfo("OSS", "Terminating...");
+    if (memory_manager_) {
+        memory_manager_->printStats();
+        memory_manager_->printMemoryLayout();
+    }
     oss_output_->printCompletedTable(scheduler_->getCompletedProcesses());
-    // oss_output_->logFinalReport(resource_manager_, scheduler_);
+    
     cleanUp();
     return EXIT_SUCCESS;
 }
@@ -118,7 +121,7 @@ void OSS::OSS::cleanUp() {
     }
 
     if (memory_manager_) {
-        
+
         delete memory_manager_;
         memory_manager_ = nullptr;
     }

@@ -11,6 +11,17 @@ namespace OSS {
         int frame = -1;
         int page = -1;
     };
+    struct MemoryStats {
+        int memory_references = 0;
+        int reads = 0;
+        int writes = 0;
+        int page_faults = 0;
+        int page_hits = 0;
+        int replacement = 0;
+        int dirty_replacement = 0;
+    };
+
+
     class MemoryManager {
         private:
             Logger *logger_;
@@ -28,16 +39,21 @@ namespace OSS {
 
             Frame frame_table_[64];
             std::queue<int> fifo_queue_;
+            MemoryStats stats_{};
+
 
 
             int findFreeFrame();
-
+            int getReplacementFrame();
+            void invalidateVictimPage(PCB &current_pcb, int victim_frame);
 
         public:
             explicit MemoryManager(Logger *logger);
             MemoryResult accessMemory(PCB &pcb, MsgBuffer msg);
             void freeProcessFrames(pid_t pid);
             void printMemoryLayout();
+            void printStats();
+            MemoryStats getStats() const;
             
     };
 }

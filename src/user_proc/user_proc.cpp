@@ -43,6 +43,10 @@ int UserProcess::run()
                 logger_->logDebugCAUTION("UserProcesss::run()", "ProcessStatus::GRANTED");
                 continue;
             }
+            if (recieve.status == ProcessStatus::DENIED) {
+                logger_->logDebugWARNING("UserProcess::run()", "ProcessStatus::DENIED");
+                continue;
+            }
 
 
             if (recieve.status != ProcessStatus::OSS_CONTROL) {
