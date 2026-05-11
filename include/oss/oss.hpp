@@ -5,6 +5,7 @@
 #include "scheduler.hpp"
 #include "../msg/msg_manager.hpp"
 #include "signal_flags.hpp"
+#include "memory_manager.hpp"
 
 namespace OSS {
     class OSS {
@@ -14,6 +15,7 @@ namespace OSS {
         OssOutput *oss_output_;
         ArgumentProcessor *argument_processor_;
         OSSClock *oss_clock_;
+        MemoryManager *memory_manager_;
         Scheduler *scheduler_;
         MsgManager *msg_manager_;
         Time next_table_dump_{0, 500000000};

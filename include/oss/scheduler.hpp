@@ -8,6 +8,8 @@
 #include "../logger/logger.hpp"
 #include <unistd.h>
 #include <signal.h>
+#include "memory_manager.hpp"
+
 
 namespace OSS {
     class OssOutput;
@@ -50,6 +52,7 @@ namespace OSS {
     private:
         OSSClock *oss_clock_;
         OssOutput *oss_output_;
+        MemoryManager *memory_manager_;
         MsgManager *msg_manager_;
         Logger *logger_;
 
@@ -74,6 +77,7 @@ namespace OSS {
             int max_simul, 
             OSSClock *oss_clock, 
             OssOutput *oss_output, 
+            MemoryManager *memory_manager,
             MsgManager *msg_manager,
             Logger *logger
         );

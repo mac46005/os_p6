@@ -36,6 +36,7 @@ namespace OSS {
         public:
             explicit MemoryManager(Logger *logger);
             MemoryResult accessMemory(PCB &pcb, MsgBuffer msg);
+            void freeProcessFrames(pid_t pid);
             void printMemoryLayout();
             
     };

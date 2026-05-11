@@ -152,6 +152,7 @@ void OSS::OssOutput::printCompletedTable(std::vector<PCB> completed_list) {
         debug_log_stream_ << pcbToString(p, false) << std::endl;
     }
 
+    std::cout << cb.build() << std::endl;
     
     
 }

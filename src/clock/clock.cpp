@@ -4,7 +4,7 @@
 Clock::Clock(std::string parent, std::string key, Logger *logger): key_(key), parent_(parent), logger_(logger) {
     std::string name_of_process = "Clock::Clock()";
 
-    logger_->logDebugINFO("Clock::Clock()","Intializing Clock");
+    // logger_->logDebugINFO("Clock::Clock()","Intializing Clock");
 
     shm_key_ = ftok(key_.c_str(), 1);
     if (shm_key_ == -1) {
@@ -105,12 +105,12 @@ Time Clock::floatToTime(float time_f) {
 }
 
 void Clock::detach() {
-    logger_->logDebugINFO("Clock::detach()", "Detaching from clock");
+    // logger_->logDebugINFO("Clock::detach()", "Detaching from clock");
     shmdt(current_time_);
 }
 
 void Clock::rmid() {
-    logger_->logDebugINFO("Clock::rmid()", "Removing shared memory in ipcs");
+    // logger_->logDebugINFO("Clock::rmid()", "Removing shared memory in ipcs");
     shmctl(shm_id_, IPC_RMID, NULL);
 }
 

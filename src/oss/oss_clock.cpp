@@ -19,7 +19,7 @@ void OSS::OSSClock::updateClockByQuantum()
 {
     Time *global_time = clock_->getCurrentTime();
     Clock::addTimeToPtrTime(global_time, time_quantum_);
-    logger_->logDebugINFO("OSSClock::updateClockByQuantum()", "Time updated to " + clock_->toString());
+    // logger_->logDebugINFO("OSSClock::updateClockByQuantum()", "Time updated to " + clock_->toString());
 }
 
 // DO I NEED THIS?
@@ -69,7 +69,7 @@ void OSS::OSSClock::checkIfLaunchIntervalReached() {
 
     bool reached = ((current_time_.sec > child_launch_time_.sec) || (current_time_.sec == child_launch_time_.sec && current_time_.nano >= child_launch_time_.nano));
     is_launch_interval_time_reached_ = reached;
-    logger_->logDebugWARNING("OSSClock::checkIfLaunchIntervalReached()", "Did launch interval reached: " + std::to_string(reached));
+    // logger_->logDebugWARNING("OSSClock::checkIfLaunchIntervalReached()", "Did launch interval reached: " + std::to_string(reached));
 }
 void OSS::OSSClock::setNewLaunchInterval()
 {

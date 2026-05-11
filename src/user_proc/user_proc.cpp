@@ -21,7 +21,7 @@ UserProcess::UserProcess(int argc, char **argv)
 
     srand(getpid() ^ time(nullptr));
     msg_manager_ = new MsgManager("msgq.txt", 0644, pid_, logger_);
-    logger_->logDebugINFO("UserProcess::UserProcess()", "PID " + std::to_string(pid_) + "\tInitialized at " + clock_checker_->toString());
+    // logger_->logDebugINFO("UserProcess::UserProcess()", "PID " + std::to_string(pid_) + "\tInitialized at " + clock_checker_->toString());
 }
 
 int UserProcess::run()
@@ -75,7 +75,7 @@ int UserProcess::run()
                 logger_->logDebugINFO("UserProcess::run()", "is_write: " + std::to_string(is_write) + "\tChose page: " + std::to_string(page) + "\toffset: " + std::to_string(offset) + "\taddress: " + std::to_string(address));
                 
                 AccessType access = is_write ? AccessType::WRITE : AccessType::READ;
-                logger_->logDebugWARNING("UserProcess::run()", "Attempting to send message to OSS");
+                // logger_->logDebugWARNING("UserProcess::run()", "Attempting to send message to OSS");
                 msg_manager_->sendMessage(
                     ppid_,
                     pid_,
@@ -86,10 +86,10 @@ int UserProcess::run()
                     access,
                     0
                 );
-                logger_->logDebugINFO("UserProcess::run()", "Message sent successfully");
+                // logger_->logDebugINFO("UserProcess::run()", "Message sent successfully");
             }
         }
-        logger_->logDebugWARNING("UserProcess::run()", "Terminated");   
+        // logger_->logDebugWARNING("UserProcess::run()", "Terminated");   
         cleanUp();
     }
     catch (std::exception &e)

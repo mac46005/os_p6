@@ -5,8 +5,9 @@ OSS::Scheduler::Scheduler(
     int max_simul,
     OSSClock *oss_clock,
     OssOutput *oss_output,
+    MemoryManager *memory_manager,
     MsgManager *msg_manager,
-    Logger *logger) : oss_clock_(oss_clock), oss_output_(oss_output), msg_manager_(msg_manager), logger_(logger)
+    Logger *logger) : oss_clock_(oss_clock), oss_output_(oss_output), msg_manager_(msg_manager), logger_(logger), memory_manager_(memory_manager)
 {
     pcb_info_.max_process_count_ = max_proc;
     pcb_info_.max_simultaneous_count_ = max_simul;
@@ -149,6 +150,7 @@ void OSS::Scheduler::handleTERMINATE(pid_t pid)
 
     if (pid == current_process_running_.pid)
     {
+        memory_manager_->freeProcessFrames(pid);
         pcb_info_.pcb_count_--;
         if (linear_process_pid_ == pid)
         {
@@ -192,17 +194,44 @@ void OSS::Scheduler::handleMEMORY_REQUEST(MsgBuffer msg)
             " page " + std::to_string(msg.page) +
             " offset " + std::to_string(msg.offset));
 
-    msg_manager_->sendMessage(
-        msg.sender_pid,
-        getpid(),
-        ProcessStatus::GRANTED,
-        msg.address,
-        msg.page,
-        msg.offset,
-        msg.access,
-        0);
+    MemoryResult result = memory_manager_->accessMemory(current_process_running_, msg);
+    if (result.granted) {
+        msg_manager_->sendMessage(
+            msg.sender_pid,
+            getpid(),
+            ProcessStatus::GRANTED,
+            msg.address,
+            msg.page,
+            msg.offset,
+            msg.access,
+            0
+        );   
+        requeueCurrentProcess();     
+    } else {
+        msg_manager_->sendMessage(
+            msg.sender_pid,
+            getpid(),
+            ProcessStatus::DENIED,
+            msg.address,
+            msg.page,
+            msg.offset,
+            msg.access,
+            0
+        );
 
-    requeueCurrentProcess();
+        requeueCurrentProcess();
+    }
+    // msg_manager_->sendMessage(
+    //     msg.sender_pid,
+    //     getpid(),
+    //     ProcessStatus::GRANTED,
+    //     msg.address,
+    //     msg.page,
+    //     msg.offset,
+    //     msg.access,
+    //     0);
+
+    // requeueCurrentProcess();
 }
 
 void OSS::Scheduler::updateProcessInReadyQueue()

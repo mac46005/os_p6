@@ -22,7 +22,7 @@ OSS::MemoryResult OSS::MemoryManager::accessMemory(PCB &pcb, MsgBuffer msg){
     MemoryResult result{};
     result.page = msg.page;
 
-    if (msg.page <= 0 || msg.page >= PAGE_COUNT) {
+    if (msg.page < 0 || msg.page >= PAGE_COUNT) {
         logger_->logDebugWARNING(
             "MemoryManager::accessMemory()",
             "Invali page request from PID " + std::to_string(pcb.pid) + " page " + std::to_string(msg.page)
@@ -47,7 +47,8 @@ OSS::MemoryResult OSS::MemoryManager::accessMemory(PCB &pcb, MsgBuffer msg){
 
         logger_->logDebugINFO(
             "MemoryManager::accessMemory()",
-            "PAGE HIT: PID " + std::to_string(msg.page) + 
+            "PAGE HIT: PID " + std::to_string(msg.pid) + 
+            " page " + std::to_string(msg.page) +
             " in frame " + std::to_string(entry.frame)
         );
 
@@ -87,4 +88,20 @@ OSS::MemoryResult OSS::MemoryManager::accessMemory(PCB &pcb, MsgBuffer msg){
     );
 
     return result;
+}
+
+void OSS::MemoryManager::freeProcessFrames(pid_t pid) {
+    for (int i = 0; i < FRAME_COUNT; i++) {
+        if (frame_table_[i].occupied && frame_table_[i].pid == pid) {
+            frame_table_[i].occupied = false;
+            frame_table_[i].dirty = false;
+            frame_table_[i].pid = -1;
+            frame_table_[i].page = -1;
+        }
+    }
+
+    logger_->logDebugINFO(
+        "MemoryManager::freeProcessFrames()",
+        "Freed frames for PID " + std::to_string(pid)
+    );
 }

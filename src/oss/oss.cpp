@@ -28,6 +28,7 @@ OSS::OSS::OSS(int argc, char **argv)
                         oss_output_
                     );
 
+                    memory_manager_ = new MemoryManager(oss_output_);
 
                     msg_manager_ = new MsgManager(
                         "msgq.txt", 0644 | IPC_CREAT, pid_, 
@@ -39,6 +40,7 @@ OSS::OSS::OSS(int argc, char **argv)
                         options.maxSimul,
                         this->oss_clock_,
                         this->oss_output_,
+                        this->memory_manager_,
                         this->msg_manager_,
                         oss_output_
                     );
@@ -113,6 +115,12 @@ void OSS::OSS::cleanUp() {
         scheduler_->cleanUp();
         delete scheduler_;
         scheduler_ = nullptr;
+    }
+
+    if (memory_manager_) {
+        
+        delete memory_manager_;
+        memory_manager_ = nullptr;
     }
 
     if (msg_manager_) {
