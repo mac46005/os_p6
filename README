@@ -19,7 +19,23 @@ make
 ```
 
 ## Usage
-
+./oss -n # - s # -t # -i # -f file_name
 ## Arguments
 
 ## AI Usage
+
+Prompt: Need help reshaping this project into where we use paging to simulate memory managegment.
+Here is the code i have so far from that last project that involved memory management. I will be stripping
+the old resource manager and reshape it to a new algorithm. Please let me know what steps i should take so that
+I can start implementing this project into the paging simualtion.
+
+Result:
+AI gave me steps into how i can simulate paging using the project layout that i had from number 5
+
+Prompt: Please revise my work and let me know what error or suggestions I should take to shape the project into what it
+has to be.
+
+Result:
+AI helped me in seeing any data structures that need to be changed so that this project can execute resource management and process management.
+
+

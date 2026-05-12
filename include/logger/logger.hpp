@@ -10,7 +10,7 @@
 class Logger
 {
 private:
-    const std::string debug_log_file_name_ = "debug.log";
+    std::string debug_log_file_name_ = "debug.log";
     
     const std::string logLevelToString(LogLevel log_level);
     const Color::Colors logLevelToColors(LogLevel log_level);
@@ -26,4 +26,6 @@ public:
     void logDebugINFO(const std::string topic, const std::string message);
     void logDebugCAUTION(const std::string topic, const std::string message);
     void logDebugWARNING(const std::string topic, const std::string message);
+    void setFileName(std::string name);
+    void log(const std::string content);
 };

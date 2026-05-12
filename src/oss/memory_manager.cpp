@@ -164,15 +164,13 @@ void OSS::MemoryManager::freeProcessFrames(pid_t pid) {
 }
 
 void OSS::MemoryManager::printMemoryLayout() {
-    logger_->logDebugINFO(
-        "MemoryManager::printMemoryLayout()",
-        "Frame table snapshot"
+    logger_->log(
+        "## Frame table snapshot #########################################################"
     );
 
     for (int i = 0; i < FRAME_COUNT; i++) {
         if (frame_table_[i].occupied) {
-            logger_->logDebugINFO(
-                "MemoryManager::printMemoryLayout()",
+            logger_->log(
                 "Frame " + std::to_string(i) +
                 " PID " + std::to_string(frame_table_[i].pid) +
                 " PAGE " + std::to_string(frame_table_[i].page) +
@@ -180,6 +178,10 @@ void OSS::MemoryManager::printMemoryLayout() {
             );
         }
     }
+
+    logger_->log(
+        "#################################################################################"
+    );
 }
 
 
@@ -190,15 +192,15 @@ void OSS::MemoryManager::printStats() {
         fault_percent = static_cast<double>(stats_.page_faults) / static_cast<double>(stats_.memory_references) * 100.0;
     }
 
-    logger_->logDebugINFO("MemoryManager::printStats()", "===== Memory Statistics =====");
-    logger_->logDebugINFO("MemoryManager::printStats()", "Memory references: " + std::to_string(stats_.memory_references));
-    logger_->logDebugINFO("MemoryManager::printStats()", "Reads: " + std::to_string(stats_.reads));
-    logger_->logDebugINFO("MemoryManager::printStats()", "Writes: " + std::to_string(stats_.writes));
-    logger_->logDebugINFO("MemoryManager::printStats()", "Page hits: " + std::to_string(stats_.page_hits));
-    logger_->logDebugINFO("MemoryManager::printStats()", "Page faults: " + std::to_string(stats_.page_faults));
-    // logger_->logDebugINFO("MemoryManager::printStats()", "Replacements: " + std::to_string(stats_.replacements));
-    // logger_->logDebugINFO("MemoryManager::printStats()", "Dirty replacements: " + std::to_string(stats_.dirty_replacements));
-    logger_->logDebugINFO("MemoryManager::printStats()", "Page fault rate: " + std::to_string(fault_percent) + "%");
+    logger_->log("===== Memory Statistics =====");
+    logger_->log("Memory references: " + std::to_string(stats_.memory_references));
+    logger_->log("Reads: " + std::to_string(stats_.reads));
+    logger_->log("Writes: " + std::to_string(stats_.writes));
+    logger_->log("Page hits: " + std::to_string(stats_.page_hits));
+    logger_->log("Page faults: " + std::to_string(stats_.page_faults));
+    // logger_->log("Replacements: " + std::to_string(stats_.replacements));
+    // logger_->log("Dirty replacements: " + std::to_string(stats_.dirty_replacements));
+    logger_->log("Page fault rate: " + std::to_string(fault_percent) + "%");
 }
 
 OSS::MemoryStats OSS::MemoryManager::getStats() const {

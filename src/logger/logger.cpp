@@ -84,3 +84,11 @@ void Logger::logDebugWARNING(const std::string topic, const std::string message)
     outputDebugLogTemplate(LogLevel::WARNING, topic, message);
 }
 
+void Logger::setFileName(std::string name) {
+    debug_log_file_name_ = name;
+}
+
+void Logger::log(const std::string content) {
+    debug_log_stream_ << content << std::endl;
+    debug_log_stream_.flush();
+}

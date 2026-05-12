@@ -16,7 +16,7 @@ OSS::OSS::OSS(int argc, char **argv)
                 else
                 {
                     oss_output_ = new OssOutput(options.logFile);
-
+                    oss_output_->setFileName(options.logFile);
                     oss_output_->initializeDebugFile();
                     
                     oss_clock_ = new OSSClock(
@@ -52,10 +52,12 @@ OSS::OSS::OSS(int argc, char **argv)
     catch (ArgumentError &e)
     {
         // oss_output_->printArgumentErrorMessage(e);
+        oss_output_->logDebugWARNING("OSS::OSS()", e.what());
     }
     catch (Error &e)
     {
         // oss_output_->printOssErrorMessage(e);
+        oss_output_->logDebugWARNING("OSS::OSS()", e.what());
     }
     catch (std::exception &e)
     {
